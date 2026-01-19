@@ -1,8 +1,8 @@
-import SwiftUI
+import Features
 import SwiftData
+import SwiftUI
 import Storage
 import UIComponents
-import Features
 
 public struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -10,11 +10,48 @@ public struct SettingsView: View {
     @Query(sort: \Profile.createdAt) private var profiles: [Profile]
 
     @State private var newProfileName: String = ""
+    @StateObject private var canvasAuth = CanvasAuthViewModel()
+    @State private var canvasBaseURL: String = ""
+    @State private var canvasClientId: String = ""
+    @State private var canvasRedirectURI: String = ""
+    @State private var canvasScopes: String = "url:GET|/api/v1/*"
+    @State private var canvasLimitedMode: Bool = false
 
     public init() {}
 
     public var body: some View {
         List {
+            Section("Canvas") {
+                TextField("Base URL", text: $canvasBaseURL)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.URL)
+                TextField("Client ID", text: $canvasClientId)
+                    .textInputAutocapitalization(.never)
+                TextField("Redirect URI", text: $canvasRedirectURI)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.URL)
+                TextField("Scopes", text: $canvasScopes)
+                    .textInputAutocapitalization(.never)
+                Toggle("Limited Mode", isOn: $canvasLimitedMode)
+
+                Button("Save Canvas Settings") {
+                    saveCanvasSettings()
+                }
+                .buttonStyle(.bordered)
+
+                Button(canvasAuth.isConnecting ? "Connecting..." : "Connect Canvas") {
+                    connectCanvas()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(canvasLimitedMode || canvasBaseURL.isEmpty || canvasClientId.isEmpty || canvasRedirectURI.isEmpty)
+
+                if let status = canvasAuth.statusMessage {
+                    Text(status)
+                        .font(StudyTypography.caption)
+                        .foregroundColor(StudyColor.secondaryText)
+                }
+            }
+
             Section("Profiles") {
                 ForEach(profiles) { profile in
                     HStack {
@@ -51,6 +88,12 @@ public struct SettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .onAppear {
+            loadCanvasSettings()
+        }
+        .onChange(of: profileSession.activeProfileId) { _ in
+            loadCanvasSettings()
+        }
     }
 
     private func setActiveProfile(_ profile: Profile) {
@@ -72,5 +115,35 @@ public struct SettingsView: View {
         profileSession.select(profileId: profile.id)
         newProfileName = ""
         try? modelContext.save()
+    }
+
+    private var activeProfile: Profile? {
+        guard let activeId = profileSession.activeProfileId else { return profiles.first }
+        return profiles.first { $0.id == activeId }
+    }
+
+    private func loadCanvasSettings() {
+        guard let profile = activeProfile else { return }
+        canvasBaseURL = profile.canvasBaseURL ?? ""
+        canvasClientId = profile.canvasClientId ?? ""
+        canvasRedirectURI = profile.canvasRedirectURI ?? ""
+        canvasScopes = profile.canvasScopes ?? "url:GET|/api/v1/*"
+        canvasLimitedMode = profile.canvasLimitedMode
+    }
+
+    private func saveCanvasSettings() {
+        guard let profile = activeProfile else { return }
+        profile.canvasBaseURL = canvasBaseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.canvasClientId = canvasClientId.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.canvasRedirectURI = canvasRedirectURI.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.canvasScopes = canvasScopes.trimmingCharacters(in: .whitespacesAndNewlines)
+        profile.canvasLimitedMode = canvasLimitedMode
+        try? modelContext.save()
+    }
+
+    private func connectCanvas() {
+        saveCanvasSettings()
+        guard let profile = activeProfile else { return }
+        canvasAuth.startOAuth(profile: profile)
     }
 }

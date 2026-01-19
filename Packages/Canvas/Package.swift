@@ -7,10 +7,15 @@ let package = Package(
     products: [
         .library(name: "Canvas", targets: ["Canvas"])
     ],
+    dependencies: [
+        .package(path: "../Core")
+    ],
     targets: [
         .target(
             name: "Canvas",
-            dependencies: []
+            dependencies: [
+                .product(name: "Core", package: "Core")
+            ]
         )
     ]
 )

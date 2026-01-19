@@ -86,6 +86,7 @@ let package = Package(
             name: "FeaturesSettings",
             dependencies: [
                 "Features",
+                .product(name: "Core", package: "Core"),
                 .product(name: "Canvas", package: "Canvas"),
                 .product(name: "Storage", package: "Storage"),
                 .product(name: "UIComponents", package: "UIComponents")

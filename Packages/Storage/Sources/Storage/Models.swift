@@ -47,6 +47,8 @@ public final class Profile {
     public var canvasBaseURL: String?
     public var canvasClientId: String?
     public var canvasRedirectURI: String?
+    public var canvasScopes: String?
+    public var canvasLimitedMode: Bool
     public var icalFeedURL: String?
     public var lastIcalSyncAt: Date?
 
@@ -71,6 +73,8 @@ public final class Profile {
         canvasBaseURL: String? = nil,
         canvasClientId: String? = nil,
         canvasRedirectURI: String? = nil,
+        canvasScopes: String? = nil,
+        canvasLimitedMode: Bool = false,
         icalFeedURL: String? = nil,
         lastIcalSyncAt: Date? = nil
     ) {
@@ -82,6 +86,8 @@ public final class Profile {
         self.canvasBaseURL = canvasBaseURL
         self.canvasClientId = canvasClientId
         self.canvasRedirectURI = canvasRedirectURI
+        self.canvasScopes = canvasScopes
+        self.canvasLimitedMode = canvasLimitedMode
         self.icalFeedURL = icalFeedURL
         self.lastIcalSyncAt = lastIcalSyncAt
         self.courses = []
