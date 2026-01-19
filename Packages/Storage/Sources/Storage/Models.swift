@@ -48,6 +48,7 @@ public final class Profile {
     public var canvasClientId: String?
     public var canvasRedirectURI: String?
     public var icalFeedURL: String?
+    public var lastIcalSyncAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \Course.profile)
     public var courses: [Course]
@@ -70,7 +71,8 @@ public final class Profile {
         canvasBaseURL: String? = nil,
         canvasClientId: String? = nil,
         canvasRedirectURI: String? = nil,
-        icalFeedURL: String? = nil
+        icalFeedURL: String? = nil,
+        lastIcalSyncAt: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -81,6 +83,7 @@ public final class Profile {
         self.canvasClientId = canvasClientId
         self.canvasRedirectURI = canvasRedirectURI
         self.icalFeedURL = icalFeedURL
+        self.lastIcalSyncAt = lastIcalSyncAt
         self.courses = []
         self.availabilityBlocks = []
         self.groupProjects = []

@@ -16,7 +16,7 @@ struct AppShellView: View {
             TabView {
                 navigationTab(title: "Today", systemImage: "sun.max", view: TodayPlaceholderView())
                 navigationTab(title: "Assignments", systemImage: "checklist", view: AssignmentsPlaceholderView())
-                navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarPlaceholderView())
+                navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarView())
                 navigationTab(title: "Vault", systemImage: "tray.full", view: VaultPlaceholderView())
                 navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesPlaceholderView())
                 navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsView())
