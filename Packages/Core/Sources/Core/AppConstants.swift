@@ -13,4 +13,8 @@ public enum AppConstants {
     public static let plannerStartHourKey = "plannerPreferredStartHour"
     public static let plannerEndHourKey = "plannerPreferredEndHour"
     public static let plannerAllowWeekendsKey = "plannerAllowWeekends"
+    public static let notificationsAssignmentsEnabledKey = "notificationsAssignmentsEnabled"
+    public static let notificationsStudyBlocksEnabledKey = "notificationsStudyBlocksEnabled"
+    public static let notificationsClassEnabledKey = "notificationsClassEnabled"
+    public static let notificationsLeaveNowEnabledKey = "notificationsLeaveNowEnabled"
 }

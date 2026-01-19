@@ -1,4 +1,5 @@
 import Core
+import MapKit
 import Planner
 import Storage
 import SwiftData
@@ -11,6 +12,7 @@ public struct TodayView: View {
     @Query(sort: \StudyBlock.startDate) private var studyBlocks: [StudyBlock]
     @Query(sort: \FocusSession.startedAt) private var focusSessions: [FocusSession]
     @Query(sort: \Course.name) private var courses: [Course]
+    @Query(sort: \CalendarEvent.startDate) private var calendarEvents: [CalendarEvent]
 
     @State private var selectedAssignment: Assignment?
     @State private var showFocus = false
@@ -26,6 +28,23 @@ public struct TodayView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if let nextEvent = nextClassEvent {
+                    StudyCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            StudyText("Next class", style: .headline)
+                            StudyText(nextEvent.title, style: .body)
+                            StudyText(nextEvent.startDate.formatted(date: .abbreviated, time: .shortened), style: .caption, color: StudyColor.secondaryText)
+                            if !nextEvent.location.isEmpty {
+                                StudyText(nextEvent.location, style: .caption, color: StudyColor.secondaryText)
+                            }
+                            Button("Open in Maps") {
+                                openInMaps(nextEvent)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                }
+
                 StudyCard {
                     VStack(alignment: .leading, spacing: 8) {
                         StudyText("Top priorities", style: .headline)
@@ -167,6 +186,11 @@ public struct TodayView: View {
         return totals
     }
 
+    private var nextClassEvent: CalendarEvent? {
+        let now = Date()
+        return calendarEvents.first { $0.startDate > now }
+    }
+
     private func startFocus(for assignment: Assignment) {
         selectedAssignment = assignment
         Haptics.impact(style: .medium)
@@ -222,5 +246,18 @@ public struct TodayView: View {
     private func isInLastWeek(_ date: Date) -> Bool {
         let weekAgo = Calendar.current.date(byAdding: .day, value: -6, to: Date()) ?? Date()
         return date >= weekAgo
+    }
+
+    private func openInMaps(_ event: CalendarEvent) {
+        guard !event.location.isEmpty else { return }
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = event.location
+        let search = MKLocalSearch(request: request)
+        Task {
+            if let response = try? await search.start(), let item = response.mapItems.first {
+                item.name = event.title
+                item.openInMaps()
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 import Core
 import Features
+import Planner
 import SwiftData
 import SwiftUI
 import Storage
@@ -26,6 +27,12 @@ public struct SettingsView: View {
     @AppStorage(AppConstants.plannerStartHourKey) private var preferredStartHour: Int = 9
     @AppStorage(AppConstants.plannerEndHourKey) private var preferredEndHour: Int = 20
     @AppStorage(AppConstants.plannerAllowWeekendsKey) private var allowWeekends: Bool = true
+    @AppStorage(AppConstants.notificationsAssignmentsEnabledKey) private var assignmentsEnabled: Bool = true
+    @AppStorage(AppConstants.notificationsStudyBlocksEnabledKey) private var studyBlocksEnabled: Bool = true
+    @AppStorage(AppConstants.notificationsClassEnabledKey) private var classEnabled: Bool = true
+    @AppStorage(AppConstants.notificationsLeaveNowEnabledKey) private var leaveNowEnabled: Bool = false
+
+    @StateObject private var leaveNowService = LeaveNowAlertService()
 
     public init() {}
 
@@ -114,6 +121,25 @@ public struct SettingsView: View {
                         Text("\(hour):00").tag(hour)
                     }
                 }
+            }
+
+            Section("Notifications") {
+                Toggle("Assignment reminders", isOn: $assignmentsEnabled)
+                Toggle("Study block reminders", isOn: $studyBlocksEnabled)
+                Toggle("Class reminders", isOn: $classEnabled)
+                Toggle("Leave-now alerts", isOn: $leaveNowEnabled)
+                    .onChange(of: leaveNowEnabled) { value in
+                        if value {
+                            leaveNowService.requestAuthorizationIfNeeded()
+                        }
+                    }
+
+                Button("Schedule reminders now") {
+                    Task {
+                        let preferences = NotificationPreferences(\n                            assignmentReminders: assignmentsEnabled,\n                            studyBlockReminders: studyBlocksEnabled,\n                            classReminders: classEnabled\n                        )\n                        let weights = PlannerSettingsStore.weights(from: UserDefaults.standard)\n                        await NotificationScheduler.scheduleAll(context: modelContext, preferences: preferences, weights: weights)\n
+                        if leaveNowEnabled {\n                            let events = (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []\n                            await leaveNowService.scheduleLeaveNowAlerts(events: events)\n                        }\n                    }
+                }
+                .buttonStyle(.bordered)
             }
 
             Section("Priority Weights") {

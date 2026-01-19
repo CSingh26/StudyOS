@@ -90,6 +90,7 @@ let package = Package(
                 "Features",
                 .product(name: "Core", package: "Core"),
                 .product(name: "Canvas", package: "Canvas"),
+                .product(name: "Planner", package: "Planner"),
                 .product(name: "Storage", package: "Storage"),
                 .product(name: "UIComponents", package: "UIComponents")
             ]
