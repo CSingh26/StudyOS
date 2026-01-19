@@ -1,3 +1,4 @@
+import Core
 import Foundation
 import SwiftData
 
@@ -15,11 +16,14 @@ public struct StorageConfiguration: Sendable {
 
 public enum StorageError: LocalizedError {
     case containerUnavailable
+    case demoDataMissing
 
     public var errorDescription: String? {
         switch self {
         case .containerUnavailable:
             return "Storage container unavailable."
+        case .demoDataMissing:
+            return "Demo data missing."
         }
     }
 }
@@ -30,17 +34,33 @@ public enum StorageController {
         configuration: StorageConfiguration
     ) throws -> ModelContainer {
         let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: configuration.appGroupId)
-        let configuration = ModelConfiguration(
+        let modelConfiguration = ModelConfiguration(
             url: groupURL?.appendingPathComponent("StudyOS.sqlite"),
-            cloudKitDatabase: configuration.useCloudKit ? .automatic : .none
+            cloudKitDatabase: configuration.useCloudKit ? .private : .none
         )
-        return try ModelContainer(for: models, configurations: configuration)
+        return try ModelContainer(for: models, configurations: modelConfiguration)
     }
 }
 
-public protocol Repository {
-    associatedtype Entity
-    func fetchAll() async throws -> [Entity]
-    func save(_ entity: Entity) async throws
-    func delete(_ entity: Entity) async throws
+@MainActor
+public final class SwiftDataRepository<Entity: PersistentModel>: CRUDRepository {
+    private let context: ModelContext
+
+    public init(context: ModelContext) {
+        self.context = context
+    }
+
+    public func fetchAll() async throws -> [Entity] {
+        try context.fetch(FetchDescriptor<Entity>())
+    }
+
+    public func save(_ entity: Entity) async throws {
+        context.insert(entity)
+        try context.save()
+    }
+
+    public func delete(_ entity: Entity) async throws {
+        context.delete(entity)
+        try context.save()
+    }
 }

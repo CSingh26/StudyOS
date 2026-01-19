@@ -7,10 +7,18 @@ let package = Package(
     products: [
         .library(name: "Storage", targets: ["Storage"])
     ],
+    dependencies: [
+        .package(path: "../Core")
+    ],
     targets: [
         .target(
             name: "Storage",
-            dependencies: []
+            dependencies: [
+                .product(name: "Core", package: "Core")
+            ],
+            resources: [
+                .process("Resources")
+            ]
         )
     ]
 )

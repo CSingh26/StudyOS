@@ -1,0 +1,140 @@
+{
+  "profiles": [
+    {
+      "id": "68bc0fe8-194c-4876-8de2-6c8a23b15588",
+      "name": "Demo Student",
+      "createdAt": "2024-02-20T10:00:00Z",
+      "isDemo": true,
+      "activeProfile": true,
+      "courses": [
+        {
+          "id": "a5ab7c73-365a-46cd-848e-ce7603e1e4c1",
+          "name": "Cognitive Science 201",
+          "code": "COGS201",
+          "colorHex": "#E38C44",
+          "createdAt": "2024-02-20T10:00:00Z",
+          "assignments": [
+            {
+              "id": "b6cb9329-953d-4cb6-bb9e-580ebd9895c7",
+              "title": "Reading Reflection: Perception",
+              "dueDate": "2024-03-04T17:00:00Z",
+              "details": "Write a 500-word reflection on Chapter 3 with two citations.",
+              "estimatedMinutes": 90,
+              "weight": 0.08,
+              "status": "notStarted",
+              "createdAt": "2024-02-20T10:00:00Z",
+              "updatedAt": "2024-02-20T10:00:00Z",
+              "subtasks": [
+                {
+                  "id": "1a267d25-f335-4eeb-95d5-c4ba76e0047d",
+                  "title": "Skim chapter headings",
+                  "isCompleted": false,
+                  "estimatedMinutes": 20,
+                  "orderIndex": 0
+                },
+                {
+                  "id": "e0334e6d-903e-44b8-b497-d33b9bf85dbd",
+                  "title": "Draft reflection outline",
+                  "isCompleted": false,
+                  "estimatedMinutes": 25,
+                  "orderIndex": 1
+                }
+              ]
+            },
+            {
+              "id": "6569ecad-8202-4f63-8f9c-2e59dd811258",
+              "title": "Lab Prep: Attention Experiment",
+              "dueDate": "2024-03-01T12:00:00Z",
+              "details": "Review protocol and complete pre-lab quiz.",
+              "estimatedMinutes": 60,
+              "weight": 0.05,
+              "status": "inProgress",
+              "createdAt": "2024-02-20T10:00:00Z",
+              "updatedAt": "2024-02-22T15:30:00Z",
+              "subtasks": [
+                {
+                  "id": "3d69ea46-4bb2-4c6b-b31b-acf7f0bf7c16",
+                  "title": "Review protocol steps",
+                  "isCompleted": true,
+                  "estimatedMinutes": 30,
+                  "orderIndex": 0
+                }
+              ]
+            }
+          ],
+          "calendarEvents": [
+            {
+              "id": "f5d687e8-c9ff-4b78-ac20-a1b34c5be814",
+              "title": "COGS201 Lecture",
+              "startDate": "2024-02-27T16:00:00Z",
+              "endDate": "2024-02-27T17:15:00Z",
+              "location": "Sage Hall 301",
+              "notes": "Bring readings",
+              "source": "manual",
+              "externalId": null
+            }
+          ],
+          "notes": [
+            {
+              "id": "5b5c0dad-dc8c-4208-abca-363b6c17aa39",
+              "title": "Lecture 4 Notes",
+              "content": "Key concepts: selective attention, change blindness.",
+              "ocrText": "",
+              "createdAt": "2024-02-21T18:00:00Z"
+            }
+          ]
+        },
+        {
+          "id": "e955ee39-6d0c-4eee-bc51-527c709f5660",
+          "name": "Statistics for Research",
+          "code": "STAT205",
+          "colorHex": "#2F89B8",
+          "createdAt": "2024-02-20T10:00:00Z",
+          "assignments": [
+            {
+              "id": "18dd1dab-7b50-4d3e-a84b-47e5edf1916e",
+              "title": "Problem Set 3",
+              "dueDate": "2024-03-06T22:00:00Z",
+              "details": "Complete problems 1-8 on hypothesis testing.",
+              "estimatedMinutes": 120,
+              "weight": 0.12,
+              "status": "notStarted",
+              "createdAt": "2024-02-20T10:00:00Z",
+              "updatedAt": "2024-02-20T10:00:00Z",
+              "subtasks": [
+                {
+                  "id": "189778a9-4750-41af-a4fa-24872d1b6093",
+                  "title": "Solve problems 1-4",
+                  "isCompleted": false,
+                  "estimatedMinutes": 45,
+                  "orderIndex": 0
+                }
+              ]
+            }
+          ],
+          "calendarEvents": [
+            {
+              "id": "bcb7ba7a-6d68-4843-8bfc-2650ac2650aa",
+              "title": "STAT205 Lab",
+              "startDate": "2024-02-28T19:00:00Z",
+              "endDate": "2024-02-28T20:15:00Z",
+              "location": "Data Lab B",
+              "notes": "Bring laptop",
+              "source": "manual",
+              "externalId": null
+            }
+          ],
+          "notes": [
+            {
+              "id": "3136a3b2-7155-4b7f-a70a-e9da12d18768",
+              "title": "Hypothesis Testing Quick Sheet",
+              "content": "Steps: state H0/H1, choose alpha, compute test statistic.",
+              "ocrText": "",
+              "createdAt": "2024-02-22T09:30:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
