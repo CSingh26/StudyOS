@@ -43,6 +43,7 @@ let package = Package(
             name: "FeaturesToday",
             dependencies: [
                 "Features",
+                .product(name: "Core", package: "Core"),
                 .product(name: "Planner", package: "Planner"),
                 .product(name: "Storage", package: "Storage"),
                 .product(name: "UIComponents", package: "UIComponents")
@@ -52,6 +53,7 @@ let package = Package(
             name: "FeaturesAssignments",
             dependencies: [
                 "Features",
+                .product(name: "Core", package: "Core"),
                 .product(name: "Storage", package: "Storage"),
                 .product(name: "Planner", package: "Planner"),
                 .product(name: "UIComponents", package: "UIComponents")

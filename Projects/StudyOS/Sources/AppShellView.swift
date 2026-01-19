@@ -20,7 +20,7 @@ struct AppShellView: View {
                     offlineBanner
                 }
                 TabView {
-                    navigationTab(title: "Today", systemImage: "sun.max", view: TodayPlaceholderView())
+                    navigationTab(title: "Today", systemImage: "sun.max", view: TodayView())
                     navigationTab(title: "Assignments", systemImage: "checklist", view: AssignmentsHubView())
                     navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarView())
                     navigationTab(title: "Vault", systemImage: "tray.full", view: VaultPlaceholderView())

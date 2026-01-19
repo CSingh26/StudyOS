@@ -138,6 +138,10 @@ public struct AssignmentDetailView: View {
                 summary = DeterministicSummarizer.summarize(text: assignment.details)
             }
         }
+        .onChange(of: assignment.status) { _ in
+            assignment.updatedAt = Date()
+            try? modelContext.save()
+        }
     }
 
     private func statusTitle(_ status: AssignmentStatus) -> String {
