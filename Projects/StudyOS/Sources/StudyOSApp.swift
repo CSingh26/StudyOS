@@ -4,7 +4,7 @@ import SwiftUI
 struct StudyOSApp: App {
     var body: some Scene {
         WindowGroup {
-            Text("StudyOS")
+            AppShellView()
         }
     }
 }

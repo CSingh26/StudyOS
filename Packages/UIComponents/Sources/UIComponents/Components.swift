@@ -63,6 +63,8 @@ public struct StudyButton: View {
 }
 
 public struct StudyPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {
@@ -71,7 +73,7 @@ public struct StudyPrimaryButtonStyle: ButtonStyle {
             .foregroundColor(.white)
             .cornerRadius(12)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
