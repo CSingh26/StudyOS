@@ -19,7 +19,7 @@ struct AppShellView: View {
                 navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarPlaceholderView())
                 navigationTab(title: "Vault", systemImage: "tray.full", view: VaultPlaceholderView())
                 navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesPlaceholderView())
-                navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsPlaceholderView())
+                navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsView())
             }
         }
         .sheet(isPresented: $showSearch) {

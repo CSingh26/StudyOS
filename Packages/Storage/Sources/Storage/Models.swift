@@ -44,6 +44,10 @@ public final class Profile {
     public var createdAt: Date
     public var isDemo: Bool
     public var activeProfile: Bool
+    public var canvasBaseURL: String?
+    public var canvasClientId: String?
+    public var canvasRedirectURI: String?
+    public var icalFeedURL: String?
 
     @Relationship(deleteRule: .cascade, inverse: \Course.profile)
     public var courses: [Course]
@@ -62,13 +66,21 @@ public final class Profile {
         name: String,
         createdAt: Date = Date(),
         isDemo: Bool = false,
-        activeProfile: Bool = false
+        activeProfile: Bool = false,
+        canvasBaseURL: String? = nil,
+        canvasClientId: String? = nil,
+        canvasRedirectURI: String? = nil,
+        icalFeedURL: String? = nil
     ) {
         self.id = id
         self.name = name
         self.createdAt = createdAt
         self.isDemo = isDemo
         self.activeProfile = activeProfile
+        self.canvasBaseURL = canvasBaseURL
+        self.canvasClientId = canvasClientId
+        self.canvasRedirectURI = canvasRedirectURI
+        self.icalFeedURL = icalFeedURL
         self.courses = []
         self.availabilityBlocks = []
         self.groupProjects = []
