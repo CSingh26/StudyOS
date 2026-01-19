@@ -1,18 +1,19 @@
 # Data Model
 
-StudyOS uses SwiftData models scoped by profile.
+StudyOS uses SwiftData models scoped by profile. Relationships are modeled with SwiftData `@Relationship`.
 
-## Core entities
-- Profile: user/account context.
-- Course: class metadata.
-- Assignment: tasks and due dates.
-- Quiz/Exam: assessment records.
-- Announcement: course updates.
-- Grade: grade entries and weights.
-- CalendarEvent: schedule items and class sessions.
-- StudyBlock: planned study sessions.
-- FocusSession: logged study time.
-- NoteItem: text notes and OCR output.
-- FileReference: security-scoped references.
-- Template/Subtask: planning breakdowns.
-- GroupProject/Milestone: collaboration data.
+## Entities
+- **Profile**: name, demo flag, Canvas config, iCal feed, sync timestamps.
+- **Course**: name, code, color, Canvas ID, grades settings.
+- **Assignment**: title, due date, status, weight, submission type, Canvas link.
+- **Quiz**: title, due date, points, Canvas link.
+- **Announcement**: title, message, posted date, Canvas link.
+- **Grade**: title, score, weight, manual flag.
+- **CalendarEvent**: start/end, location, source, Canvas ID.
+- **StudyBlock**: planned sessions tied to assignments/courses.
+- **FocusSession**: logged time, duration, notes.
+- **NoteItem**: user notes + OCR text.
+- **FileReference**: bookmark data to file, type, course/assignment linkage.
+- **Template/Subtask**: task breakdown templates.
+- **AvailabilityBlock**: study group scheduling availability.
+- **GroupProject/Milestone**: collaboration board data.

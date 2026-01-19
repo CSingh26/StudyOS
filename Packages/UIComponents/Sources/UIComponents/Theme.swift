@@ -80,7 +80,57 @@ public struct StudyTheme: Sendable {
     public var coolAccent: Color
     public var warmAccent: Color
 
-    public init(\n        background: Color = StudyColor.background,\n        surface: Color = StudyColor.surface,\n        primaryText: Color = StudyColor.primaryText,\n        secondaryText: Color = StudyColor.secondaryText,\n        coolAccent: Color = StudyColor.coolAccent,\n        warmAccent: Color = StudyColor.warmAccent\n    ) {\n        self.background = background\n        self.surface = surface\n        self.primaryText = primaryText\n        self.secondaryText = secondaryText\n        self.coolAccent = coolAccent\n        self.warmAccent = warmAccent\n    }\n}
+    public init(
+        background: Color = StudyColor.background,
+        surface: Color = StudyColor.surface,
+        primaryText: Color = StudyColor.primaryText,
+        secondaryText: Color = StudyColor.secondaryText,
+        coolAccent: Color = StudyColor.coolAccent,
+        warmAccent: Color = StudyColor.warmAccent
+    ) {
+        self.background = background
+        self.surface = surface
+        self.primaryText = primaryText
+        self.secondaryText = secondaryText
+        self.coolAccent = coolAccent
+        self.warmAccent = warmAccent
+    }
+}
 
 public struct StudyText: View {
-    public enum Style {\n        case title\n        case headline\n        case body\n        case caption\n    }\n\n    private let text: String\n    private let style: Style\n    private let color: Color\n\n    public init(_ text: String, style: Style = .body, color: Color = StudyColor.primaryText) {\n        self.text = text\n        self.style = style\n        self.color = color\n    }\n\n    public var body: some View {\n        Text(text)\n            .font(font(for: style))\n            .foregroundColor(color)\n    }\n\n    private func font(for style: Style) -> Font {\n        switch style {\n        case .title:\n            return StudyTypography.title\n        case .headline:\n            return StudyTypography.headline\n        case .body:\n            return StudyTypography.body\n        case .caption:\n            return StudyTypography.caption\n        }\n    }\n}
+    public enum Style {
+        case title
+        case headline
+        case body
+        case caption
+    }
+
+    private let text: String
+    private let style: Style
+    private let color: Color
+
+    public init(_ text: String, style: Style = .body, color: Color = StudyColor.primaryText) {
+        self.text = text
+        self.style = style
+        self.color = color
+    }
+
+    public var body: some View {
+        Text(text)
+            .font(font(for: style))
+            .foregroundColor(color)
+    }
+
+    private func font(for style: Style) -> Font {
+        switch style {
+        case .title:
+            return StudyTypography.title
+        case .headline:
+            return StudyTypography.headline
+        case .body:
+            return StudyTypography.body
+        case .caption:
+            return StudyTypography.caption
+        }
+    }
+}

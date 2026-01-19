@@ -65,15 +65,15 @@ public final class SimplePlannerEngine: PlannerEngine {
     private func availableIntervals(on day: Date, constraints: PlannerConstraints) -> [DateInterval] {
         let startHour = constraints.preferredWindow.startHour
         let endHour = constraints.preferredWindow.endHour
-        guard let start = calendar.date(bySettingHour: startHour, minute: 0, second: 0, of: day),
-              let end = calendar.date(bySettingHour: endHour, minute: 0, second: 0, of: day) else {
+        guard let start = date(on: day, hour: startHour),
+              let end = date(on: day, hour: endHour) else {
             return []
         }
         var intervals = [DateInterval(start: start, end: end)]
 
         for window in constraints.noStudyWindows {
-            if let blockStart = calendar.date(bySettingHour: window.startHour, minute: 0, second: 0, of: day),
-               let blockEnd = calendar.date(bySettingHour: window.endHour, minute: 0, second: 0, of: day) {
+            if let blockStart = date(on: day, hour: window.startHour),
+               let blockEnd = date(on: day, hour: window.endHour) {
                 intervals = subtract(intervals: intervals, blocked: DateInterval(start: blockStart, end: blockEnd))
             }
         }
@@ -85,6 +85,14 @@ public final class SimplePlannerEngine: PlannerEngine {
         }
 
         return intervals
+    }
+
+    private func date(on day: Date, hour: Int) -> Date? {
+        let startOfDay = calendar.startOfDay(for: day)
+        if hour == 24 {
+            return calendar.date(byAdding: .day, value: 1, to: startOfDay)
+        }
+        return calendar.date(bySettingHour: hour, minute: 0, second: 0, of: startOfDay)
     }
 
     private func subtract(intervals: [DateInterval], blocked: DateInterval) -> [DateInterval] {

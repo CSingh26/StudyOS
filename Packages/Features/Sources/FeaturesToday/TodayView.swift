@@ -16,12 +16,15 @@ public struct TodayView: View {
 
     @State private var selectedAssignment: Assignment?
     @State private var showFocus = false
+    @State private var isPlanning = false
+    @State private var planningStatus: String?
 
     @AppStorage(AppConstants.priorityDueSoonKey) private var dueSoonWeight: Double = 0.35
     @AppStorage(AppConstants.priorityEffortKey) private var effortWeight: Double = 0.2
     @AppStorage(AppConstants.priorityWeightKey) private var weightWeight: Double = 0.25
     @AppStorage(AppConstants.priorityStatusKey) private var statusWeight: Double = 0.1
     @AppStorage(AppConstants.priorityCourseKey) private var courseWeight: Double = 0.1
+    @AppStorage(AppConstants.plannerExportCalendarKey) private var exportCalendarEnabled: Bool = false
 
     public init() {}
 
@@ -71,6 +74,32 @@ public struct TodayView: View {
 
                 StudyCard {
                     VStack(alignment: .leading, spacing: 12) {
+                        StudyText("Plan", style: .headline)
+                        if isPlanning {
+                            HStack(spacing: 8) {
+                                ProgressView()
+                                StudyText("Planning schedule...", style: .caption, color: StudyColor.secondaryText)
+                            }
+                        }
+                        HStack(spacing: 12) {
+                            Button("Auto plan") {
+                                Task { await planSchedule(recover: false) }
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                            Button("Recovery mode") {
+                                Task { await planSchedule(recover: true) }
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        if let planningStatus {
+                            StudyText(planningStatus, style: .caption, color: StudyColor.secondaryText)
+                        }
+                    }
+                }
+
+                StudyCard {
+                    VStack(alignment: .leading, spacing: 12) {
                         StudyText("Scheduled blocks", style: .headline)
                         let todayBlocks = studyBlocks.filter { Calendar.current.isDateInToday($0.startDate) }
                         if todayBlocks.isEmpty {
@@ -84,6 +113,11 @@ public struct TodayView: View {
                                     Text(block.startDate.formatted(date: .omitted, time: .shortened))
                                         .font(StudyTypography.caption)
                                         .foregroundColor(StudyColor.secondaryText)
+                                    if block.status == .missed {
+                                        Text("Missed")
+                                            .font(StudyTypography.caption)
+                                            .foregroundColor(StudyColor.warmAccent)
+                                    }
                                 }
                                 Spacer()
                                 Button("Snooze") {
@@ -141,6 +175,9 @@ public struct TodayView: View {
                     logFocus(minutes: minutes, assignment: assignment)
                 }
             }
+        }
+        .onAppear {
+            markMissedBlocks()
         }
     }
 
@@ -258,6 +295,155 @@ public struct TodayView: View {
                 item.name = event.title
                 item.openInMaps()
             }
+        }
+    }
+
+    private func markMissedBlocks() {
+        let now = Date()
+        var didUpdate = false
+        for block in studyBlocks where block.startDate < now && block.status == .planned {
+            block.status = .missed
+            didUpdate = true
+        }
+        if didUpdate {
+            try? modelContext.save()
+        }
+    }
+
+    private func planSchedule(recover: Bool) async {
+        guard !isPlanning else { return }
+        isPlanning = true
+        planningStatus = nil
+        defer { isPlanning = false }
+
+        let activeAssignments = assignments.filter { assignment in
+            assignment.status != .submitted
+        }
+        guard !activeAssignments.isEmpty else {
+            planningStatus = "No active assignments to plan."
+            return
+        }
+
+        let learned = learnedEstimates()
+        let tasks = activeAssignments.map { assignment -> StudyTask in
+            let taskType = taskType(for: assignment)
+            let key = EstimateKey(courseId: assignment.course?.id, taskType: taskType)
+            let learnedMinutes = learned[key]
+            let estimated = blendEstimate(base: assignment.estimatedMinutes, learned: learnedMinutes)
+            return StudyTask(
+                id: assignment.id,
+                title: assignment.title,
+                dueDate: assignment.dueDate ?? Calendar.current.date(byAdding: .day, value: 7, to: Date()),
+                estimatedMinutes: max(estimated, 15),
+                type: taskType,
+                courseId: assignment.course?.id,
+                weight: assignment.weight,
+                status: taskStatus(from: assignment.status),
+                courseImportance: 0.5
+            )
+        }
+
+        var constraints = PlannerSettingsStore.constraints(from: UserDefaults.standard)
+        do {
+            let maxDue = tasks.compactMap(\.dueDate).max() ?? Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date()
+            let busyIntervals = try await EventKitBusyIntervalProvider.busyIntervals(
+                start: Date(),
+                end: maxDue,
+                client: DefaultEventKitClient()
+            )
+            constraints.busyIntervals = busyIntervals
+        } catch {
+            StudyLogger.planner.error("Failed to load EventKit busy intervals: \(error.localizedDescription)")
+        }
+
+        let planner = SimplePlannerEngine()
+        let missedBlocks = studyBlocks.filter { $0.startDate < Date() && $0.status == .planned }
+        let plannerMissed = missedBlocks.compactMap { block -> Planner.StudyBlock? in
+            guard let assignmentId = block.assignment?.id else { return nil }
+            return Planner.StudyBlock(taskId: assignmentId, start: block.startDate, end: block.endDate)
+        }
+
+        for block in studyBlocks where block.status != .completed {
+            modelContext.delete(block)
+        }
+
+        do {
+            let planned = try await (recover
+                ? planner.recover(missedBlocks: plannerMissed, tasks: tasks, constraints: constraints)
+                : planner.plan(tasks: tasks, constraints: constraints))
+            let assignmentMap = Dictionary(uniqueKeysWithValues: activeAssignments.map { ($0.id, $0) })
+            var createdBlocks: [StudyBlock] = []
+            for block in planned {
+                guard let assignment = assignmentMap[block.taskId] else { continue }
+                let studyBlock = StudyBlock(
+                    startDate: block.start,
+                    endDate: block.end,
+                    status: .planned,
+                    assignment: assignment,
+                    course: assignment.course
+                )
+                modelContext.insert(studyBlock)
+                createdBlocks.append(studyBlock)
+            }
+            try? modelContext.save()
+            if exportCalendarEnabled {
+                await StudyBlockCalendarExporter.export(blocks: createdBlocks)
+            }
+            planningStatus = "Planned \(createdBlocks.count) study blocks."
+        } catch {
+            StudyLogger.planner.error("Planning failed: \(error.localizedDescription)")
+            planningStatus = "Planning failed. Try again."
+        }
+    }
+
+    private func learnedEstimates() -> [EstimateKey: Double] {
+        let records = focusSessions.map { session in
+            FocusSessionRecord(
+                courseId: session.course?.id,
+                taskType: taskType(for: session.taskType),
+                durationMinutes: session.durationMinutes
+            )
+        }
+        return TimeEstimateLearner.updateEstimates(current: [:], sessions: records)
+    }
+
+    private func blendEstimate(base: Int, learned: Double?) -> Int {
+        guard let learned else { return base }
+        let blended = (Double(base) * 0.6) + (learned * 0.4)
+        return Int(blended.rounded())
+    }
+
+    private func taskType(for assignment: Assignment) -> TaskType {
+        if let kind = assignment.subtasks.first?.template?.kind {
+            return taskType(for: kind)
+        }
+        let title = assignment.title.lowercased()
+        if title.contains("exam") { return .exam }
+        if title.contains("quiz") { return .quiz }
+        if title.contains("project") { return .project }
+        if title.contains("essay") || title.contains("paper") { return .writing }
+        if title.contains("lab") || title.contains("problem") { return .problemSet }
+        return .other
+    }
+
+    private func taskType(for kind: TemplateKind) -> TaskType {
+        switch kind {
+        case .reading:
+            return .reading
+        case .writing:
+            return .writing
+        case .coding:
+            return .coding
+        case .problemSet:
+            return .problemSet
+        case .project:
+            return .project
+        case .exam:
+            return .exam
+        case .quiz:
+            return .quiz
+        case .other:
+            return .other
         }
     }
 }

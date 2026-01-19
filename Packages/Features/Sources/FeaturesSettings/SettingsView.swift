@@ -6,6 +6,7 @@ import SwiftData
 import SwiftUI
 import Storage
 import UIComponents
+import UIKit
 
 public struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -28,12 +29,21 @@ public struct SettingsView: View {
     @AppStorage(AppConstants.plannerStartHourKey) private var preferredStartHour: Int = 9
     @AppStorage(AppConstants.plannerEndHourKey) private var preferredEndHour: Int = 20
     @AppStorage(AppConstants.plannerAllowWeekendsKey) private var allowWeekends: Bool = true
+    @AppStorage(AppConstants.plannerNoStudyEnabledKey) private var noStudyEnabled: Bool = false
+    @AppStorage(AppConstants.plannerNoStudyStartKey) private var noStudyStart: Int = 22
+    @AppStorage(AppConstants.plannerNoStudyEndKey) private var noStudyEnd: Int = 7
+    @AppStorage(AppConstants.plannerExportCalendarKey) private var exportCalendarEnabled: Bool = false
     @AppStorage(AppConstants.notificationsAssignmentsEnabledKey) private var assignmentsEnabled: Bool = true
     @AppStorage(AppConstants.notificationsStudyBlocksEnabledKey) private var studyBlocksEnabled: Bool = true
     @AppStorage(AppConstants.notificationsClassEnabledKey) private var classEnabled: Bool = true
     @AppStorage(AppConstants.notificationsLeaveNowEnabledKey) private var leaveNowEnabled: Bool = false
+    @AppStorage(AppConstants.appLockEnabledKey) private var appLockEnabled: Bool = false
 
     @StateObject private var leaveNowService = LeaveNowAlertService()
+    @State private var exportURL: URL?
+    @State private var showShareSheet = false
+    @State private var exportErrorMessage = ""
+    @State private var showExportError = false
 
     public init() {}
 
@@ -103,6 +113,13 @@ public struct SettingsView: View {
                 }
             }
 
+            Section("Security") {
+                Toggle("App Lock (Face ID / Touch ID)", isOn: $appLockEnabled)
+                Text("Require biometric unlock when reopening StudyOS.")
+                    .font(StudyTypography.caption)
+                    .foregroundColor(StudyColor.secondaryText)
+            }
+
             Section("Planning") {
                 NavigationLink("Templates") {
                     TemplateLibraryView()
@@ -128,6 +145,23 @@ public struct SettingsView: View {
                         Text("\(hour):00").tag(hour)
                     }
                 }
+                Toggle("No-study window", isOn: $noStudyEnabled)
+                if noStudyEnabled {
+                    Picker("No-study start", selection: $noStudyStart) {
+                        ForEach(0..<24, id: \.self) { hour in
+                            Text("\(hour):00").tag(hour)
+                        }
+                    }
+                    Picker("No-study end", selection: $noStudyEnd) {
+                        ForEach(0..<24, id: \.self) { hour in
+                            Text("\(hour):00").tag(hour)
+                        }
+                    }
+                    Text("If the end time is earlier than the start time, StudyOS treats it as an overnight quiet window.")
+                        .font(StudyTypography.caption)
+                        .foregroundColor(StudyColor.secondaryText)
+                }
+                Toggle("Export study blocks to StudyOS Calendar", isOn: $exportCalendarEnabled)
             }
 
             Section("Notifications") {
@@ -143,8 +177,19 @@ public struct SettingsView: View {
 
                 Button("Schedule reminders now") {
                     Task {
-                        let preferences = NotificationPreferences(\n                            assignmentReminders: assignmentsEnabled,\n                            studyBlockReminders: studyBlocksEnabled,\n                            classReminders: classEnabled\n                        )\n                        let weights = PlannerSettingsStore.weights(from: UserDefaults.standard)\n                        await NotificationScheduler.scheduleAll(context: modelContext, preferences: preferences, weights: weights)\n
-                        if leaveNowEnabled {\n                            let events = (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []\n                            await leaveNowService.scheduleLeaveNowAlerts(events: events)\n                        }\n                    }
+                        let preferences = NotificationPreferences(
+                            assignmentReminders: assignmentsEnabled,
+                            studyBlockReminders: studyBlocksEnabled,
+                            classReminders: classEnabled
+                        )
+                        let weights = PlannerSettingsStore.weights(from: UserDefaults.standard)
+                        await NotificationScheduler.scheduleAll(context: modelContext, preferences: preferences, weights: weights)
+
+                        if leaveNowEnabled {
+                            let events = (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []
+                            await leaveNowService.scheduleLeaveNowAlerts(events: events)
+                        }
+                    }
                 }
                 .buttonStyle(.bordered)
             }
@@ -162,6 +207,21 @@ public struct SettingsView: View {
                     .disabled(true)
             }
 
+            Section("Data Export") {
+                Button("Export assignments (JSON)") {
+                    exportAssignments(format: .json)
+                }
+                Button("Export assignments (CSV)") {
+                    exportAssignments(format: .csv)
+                }
+                Button("Export focus sessions (JSON)") {
+                    exportFocusSessions(format: .json)
+                }
+                Button("Export focus sessions (CSV)") {
+                    exportFocusSessions(format: .csv)
+                }
+            }
+
             Section("Add Profile") {
                 TextField("New profile name", text: $newProfileName)
                 Button("Create Profile") {
@@ -176,6 +236,16 @@ public struct SettingsView: View {
         }
         .onChange(of: profileSession.activeProfileId) { _ in
             loadCanvasSettings()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let exportURL {
+                ActivityView(activityItems: [exportURL])
+            }
+        }
+        .alert("Export failed", isPresented: $showExportError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(exportErrorMessage)
         }
     }
 
@@ -237,4 +307,76 @@ public struct SettingsView: View {
             Slider(value: value, in: 0...1, step: 0.05)
         }
     }
+
+    private enum ExportFormat {
+        case json
+        case csv
+
+        var fileExtension: String {
+            switch self {
+            case .json:
+                return "json"
+            case .csv:
+                return "csv"
+            }
+        }
+    }
+
+    private func exportAssignments(format: ExportFormat) {
+        do {
+            let assignments = try modelContext.fetch(FetchDescriptor<Assignment>())
+            let data: Data
+            switch format {
+            case .json:
+                data = try StorageExporter.assignmentsToJSON(assignments)
+            case .csv:
+                data = Data(StorageExporter.assignmentsToCSV(assignments).utf8)
+            }
+            let url = try writeExport(data: data, name: "StudyOS_Assignments", ext: format.fileExtension)
+            exportURL = url
+            showShareSheet = true
+        } catch {
+            presentExportError(error)
+        }
+    }
+
+    private func exportFocusSessions(format: ExportFormat) {
+        do {
+            let sessions = try modelContext.fetch(FetchDescriptor<FocusSession>())
+            let data: Data
+            switch format {
+            case .json:
+                data = try StorageExporter.focusSessionsToJSON(sessions)
+            case .csv:
+                data = Data(StorageExporter.focusSessionsToCSV(sessions).utf8)
+            }
+            let url = try writeExport(data: data, name: "StudyOS_FocusSessions", ext: format.fileExtension)
+            exportURL = url
+            showShareSheet = true
+        } catch {
+            presentExportError(error)
+        }
+    }
+
+    private func writeExport(data: Data, name: String, ext: String) throws -> URL {
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name)_\(timestamp).\(ext)")
+        try data.write(to: fileURL, options: .atomic)
+        return fileURL
+    }
+
+    private func presentExportError(_ error: Error) {
+        exportErrorMessage = error.localizedDescription
+        showExportError = true
+    }
+}
+
+private struct ActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

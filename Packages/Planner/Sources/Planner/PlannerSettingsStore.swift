@@ -7,15 +7,32 @@ public enum PlannerSettingsStore {
         let startHour = defaults.integer(forKey: AppConstants.plannerStartHourKey)
         let endHour = defaults.integer(forKey: AppConstants.plannerEndHourKey)
         let allowWeekends = defaults.object(forKey: AppConstants.plannerAllowWeekendsKey) as? Bool ?? true
+        let noStudyEnabled = defaults.object(forKey: AppConstants.plannerNoStudyEnabledKey) as? Bool ?? false
+        let noStudyStart = defaults.object(forKey: AppConstants.plannerNoStudyStartKey) as? Int
+        let noStudyEnd = defaults.object(forKey: AppConstants.plannerNoStudyEndKey) as? Int
 
         let resolvedMaxHours = maxHours == 0 ? 4 : maxHours
         let resolvedStart = startHour == 0 ? 9 : startHour
         let resolvedEnd = endHour == 0 ? 20 : endHour
+        let resolvedNoStudyStart = noStudyStart ?? 22
+        let resolvedNoStudyEnd = noStudyEnd ?? 7
+
+        var noStudyWindows: [TimeWindow] = []
+        if noStudyEnabled, resolvedNoStudyStart != resolvedNoStudyEnd {
+            if resolvedNoStudyStart < resolvedNoStudyEnd {
+                noStudyWindows = [TimeWindow(startHour: resolvedNoStudyStart, endHour: resolvedNoStudyEnd)]
+            } else {
+                noStudyWindows = [
+                    TimeWindow(startHour: resolvedNoStudyStart, endHour: 24),
+                    TimeWindow(startHour: 0, endHour: resolvedNoStudyEnd)
+                ]
+            }
+        }
 
         return PlannerConstraints(
             maxHoursPerDay: resolvedMaxHours,
             preferredWindow: TimeWindow(startHour: resolvedStart, endHour: resolvedEnd),
-            noStudyWindows: [],
+            noStudyWindows: noStudyWindows,
             allowWeekends: allowWeekends,
             busyIntervals: []
         )

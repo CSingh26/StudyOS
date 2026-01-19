@@ -17,4 +17,9 @@ public enum AppConstants {
     public static let notificationsStudyBlocksEnabledKey = "notificationsStudyBlocksEnabled"
     public static let notificationsClassEnabledKey = "notificationsClassEnabled"
     public static let notificationsLeaveNowEnabledKey = "notificationsLeaveNowEnabled"
+    public static let plannerNoStudyEnabledKey = "plannerNoStudyEnabled"
+    public static let plannerNoStudyStartKey = "plannerNoStudyStart"
+    public static let plannerNoStudyEndKey = "plannerNoStudyEnd"
+    public static let plannerExportCalendarKey = "plannerExportCalendarEnabled"
+    public static let appLockEnabledKey = "appLockEnabled"
 }

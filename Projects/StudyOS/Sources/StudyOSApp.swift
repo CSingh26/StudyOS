@@ -11,6 +11,9 @@ struct StudyOSApp: App {
     private let container: ModelContainer
 
     init() {
+        if ProcessInfo.processInfo.arguments.contains("UITEST_RESET") {
+            StorageController.deleteStore(appGroupId: AppConstants.appGroupId)
+        }
         let configuration = StorageConfiguration(
             appGroupId: AppConstants.appGroupId,
             cloudKitContainerId: AppConstants.cloudKitContainerId,

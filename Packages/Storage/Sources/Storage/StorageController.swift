@@ -40,6 +40,15 @@ public enum StorageController {
         )
         return try ModelContainer(for: models, configurations: modelConfiguration)
     }
+
+    public static func deleteStore(appGroupId: String) {
+        guard let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupId) else { return }
+        let base = groupURL.appendingPathComponent("StudyOS.sqlite")
+        let urls = [base, base.appendingPathExtension("shm"), base.appendingPathExtension("wal")]
+        for url in urls {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
 }
 
 @MainActor

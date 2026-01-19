@@ -14,3 +14,6 @@ if ! command -v tuist >/dev/null 2>&1; then
 fi
 
 printf "Tuist version: %s\n" "$(tuist version)"
+
+printf "Fetching Tuist dependencies...\n"
+tuist fetch
