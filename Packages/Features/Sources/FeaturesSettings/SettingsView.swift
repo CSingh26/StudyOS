@@ -1,5 +1,6 @@
 import Core
 import Features
+import FeaturesCollaboration
 import Planner
 import SwiftData
 import SwiftUI
@@ -105,6 +106,12 @@ public struct SettingsView: View {
             Section("Planning") {
                 NavigationLink("Templates") {
                     TemplateLibraryView()
+                }
+            }
+
+            Section("Collaboration") {
+                NavigationLink("Study Groups") {
+                    CollaborationView()
                 }
             }
 
