@@ -7,10 +7,15 @@ let package = Package(
     products: [
         .library(name: "Planner", targets: ["Planner"])
     ],
+    dependencies: [
+        .package(path: "../Core")
+    ],
     targets: [
         .target(
             name: "Planner",
-            dependencies: []
+            dependencies: [
+                .product(name: "Core", package: "Core")
+            ]
         )
     ]
 )

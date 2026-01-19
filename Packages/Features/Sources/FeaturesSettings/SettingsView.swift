@@ -1,3 +1,4 @@
+import Core
 import Features
 import SwiftData
 import SwiftUI
@@ -16,6 +17,15 @@ public struct SettingsView: View {
     @State private var canvasRedirectURI: String = ""
     @State private var canvasScopes: String = "url:GET|/api/v1/*"
     @State private var canvasLimitedMode: Bool = false
+    @AppStorage(AppConstants.priorityDueSoonKey) private var dueSoonWeight: Double = 0.35
+    @AppStorage(AppConstants.priorityEffortKey) private var effortWeight: Double = 0.2
+    @AppStorage(AppConstants.priorityWeightKey) private var weightWeight: Double = 0.25
+    @AppStorage(AppConstants.priorityStatusKey) private var statusWeight: Double = 0.1
+    @AppStorage(AppConstants.priorityCourseKey) private var courseWeight: Double = 0.1
+    @AppStorage(AppConstants.plannerMaxHoursKey) private var maxHoursPerDay: Int = 4
+    @AppStorage(AppConstants.plannerStartHourKey) private var preferredStartHour: Int = 9
+    @AppStorage(AppConstants.plannerEndHourKey) private var preferredEndHour: Int = 20
+    @AppStorage(AppConstants.plannerAllowWeekendsKey) private var allowWeekends: Bool = true
 
     public init() {}
 
@@ -91,6 +101,29 @@ public struct SettingsView: View {
                 }
             }
 
+            Section("Routine Builder") {
+                Stepper("Max hours per day: \(maxHoursPerDay)", value: $maxHoursPerDay, in: 1...8)
+                Toggle("Allow weekends", isOn: $allowWeekends)
+                Picker("Preferred start", selection: $preferredStartHour) {
+                    ForEach(5..<23, id: \.self) { hour in
+                        Text("\(hour):00").tag(hour)
+                    }
+                }
+                Picker("Preferred end", selection: $preferredEndHour) {
+                    ForEach(6..<24, id: \.self) { hour in
+                        Text("\(hour):00").tag(hour)
+                    }
+                }
+            }
+
+            Section("Priority Weights") {
+                weightSlider(title: "Due soon", value: $dueSoonWeight)
+                weightSlider(title: "Effort", value: $effortWeight)
+                weightSlider(title: "Weight", value: $weightWeight)
+                weightSlider(title: "Status", value: $statusWeight)
+                weightSlider(title: "Course importance", value: $courseWeight)
+            }
+
             Section("AI Integrations") {
                 Toggle("Optional AI integrations (off)", isOn: .constant(false))
                     .disabled(true)
@@ -162,5 +195,13 @@ public struct SettingsView: View {
         saveCanvasSettings()
         guard let profile = activeProfile else { return }
         canvasAuth.startOAuth(profile: profile)
+    }
+
+    private func weightSlider(title: String, value: Binding<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(StudyTypography.caption)
+            Slider(value: value, in: 0...1, step: 0.05)
+        }
     }
 }

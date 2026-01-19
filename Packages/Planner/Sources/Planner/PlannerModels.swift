@@ -11,6 +11,12 @@ public enum TaskType: String, Sendable, Codable {
     case other
 }
 
+public enum StudyTaskStatus: String, Sendable, Codable {
+    case notStarted
+    case inProgress
+    case completed
+}
+
 public struct StudyTask: Identifiable, Sendable, Codable {
     public let id: UUID
     public var title: String
@@ -18,6 +24,9 @@ public struct StudyTask: Identifiable, Sendable, Codable {
     public var estimatedMinutes: Int
     public var type: TaskType
     public var courseId: UUID?
+    public var weight: Double
+    public var status: StudyTaskStatus
+    public var courseImportance: Double
 
     public init(
         id: UUID = UUID(),
@@ -25,7 +34,10 @@ public struct StudyTask: Identifiable, Sendable, Codable {
         dueDate: Date? = nil,
         estimatedMinutes: Int,
         type: TaskType,
-        courseId: UUID? = nil
+        courseId: UUID? = nil,
+        weight: Double = 0,
+        status: StudyTaskStatus = .notStarted,
+        courseImportance: Double = 0.5
     ) {
         self.id = id
         self.title = title
@@ -33,6 +45,9 @@ public struct StudyTask: Identifiable, Sendable, Codable {
         self.estimatedMinutes = estimatedMinutes
         self.type = type
         self.courseId = courseId
+        self.weight = weight
+        self.status = status
+        self.courseImportance = courseImportance
     }
 }
 
@@ -65,17 +80,20 @@ public struct PlannerConstraints: Sendable, Codable {
     public var preferredWindow: TimeWindow
     public var noStudyWindows: [TimeWindow]
     public var allowWeekends: Bool
+    public var busyIntervals: [DateInterval]
 
     public init(
         maxHoursPerDay: Int = 4,
         preferredWindow: TimeWindow = TimeWindow(startHour: 9, endHour: 20),
         noStudyWindows: [TimeWindow] = [],
-        allowWeekends: Bool = true
+        allowWeekends: Bool = true,
+        busyIntervals: [DateInterval] = []
     ) {
         self.maxHoursPerDay = maxHoursPerDay
         self.preferredWindow = preferredWindow
         self.noStudyWindows = noStudyWindows
         self.allowWeekends = allowWeekends
+        self.busyIntervals = busyIntervals
     }
 }
 

@@ -4,4 +4,13 @@ public enum AppConstants {
     public static let backgroundRefreshId = "com.studyos.refresh"
     public static let backgroundProcessingId = "com.studyos.processing"
     public static let activeProfileKey = "activeProfileId"
+    public static let priorityDueSoonKey = "priorityDueSoonWeight"
+    public static let priorityEffortKey = "priorityEffortWeight"
+    public static let priorityWeightKey = "priorityWeightWeight"
+    public static let priorityStatusKey = "priorityStatusWeight"
+    public static let priorityCourseKey = "priorityCourseWeight"
+    public static let plannerMaxHoursKey = "plannerMaxHoursPerDay"
+    public static let plannerStartHourKey = "plannerPreferredStartHour"
+    public static let plannerEndHourKey = "plannerPreferredEndHour"
+    public static let plannerAllowWeekendsKey = "plannerAllowWeekends"
 }

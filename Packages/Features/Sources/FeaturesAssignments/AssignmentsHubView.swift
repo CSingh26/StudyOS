@@ -1,3 +1,5 @@
+import Core
+import Planner
 import Storage
 import SwiftData
 import SwiftUI
@@ -14,6 +16,11 @@ public struct AssignmentsHubView: View {
     @State private var selectedStatus: StatusFilter = .all
     @State private var selectedCourseId: UUID?
     @State private var viewMode: ViewMode = .list
+    @AppStorage(AppConstants.priorityDueSoonKey) private var dueSoonWeight: Double = 0.35
+    @AppStorage(AppConstants.priorityEffortKey) private var effortWeight: Double = 0.2
+    @AppStorage(AppConstants.priorityWeightKey) private var weightWeight: Double = 0.25
+    @AppStorage(AppConstants.priorityStatusKey) private var statusWeight: Double = 0.1
+    @AppStorage(AppConstants.priorityCourseKey) private var courseWeight: Double = 0.1
 
     public init() {}
 
@@ -139,12 +146,35 @@ public struct AssignmentsHubView: View {
     }
 
     private func priorityScore(_ assignment: Assignment) -> Double {
-        let now = Date()
-        let dueInterval = assignment.dueDate?.timeIntervalSince(now) ?? 7 * 24 * 60 * 60
-        let dueScore = max(0, 1 - (dueInterval / (7 * 24 * 60 * 60)))
-        let effortScore = min(Double(assignment.estimatedMinutes) / 120.0, 1)
-        let weightScore = min(assignment.weight / 100.0, 1)
-        return (dueScore * 0.5) + (effortScore * 0.3) + (weightScore * 0.2)
+        let weights = PriorityWeights(
+            dueSoonFactor: dueSoonWeight,
+            effortFactor: effortWeight,
+            weightFactor: weightWeight,
+            statusFactor: statusWeight,
+            courseImportance: courseWeight
+        )
+        let task = StudyTask(
+            title: assignment.title,
+            dueDate: assignment.dueDate,
+            estimatedMinutes: assignment.estimatedMinutes,
+            type: .other,
+            courseId: assignment.course?.id,
+            weight: assignment.weight,
+            status: taskStatus(from: assignment.status),
+            courseImportance: 0.5
+        )
+        return PriorityScorer.score(task: task, weights: weights)
+    }
+
+    private func taskStatus(from status: AssignmentStatus) -> StudyTaskStatus {
+        switch status {
+        case .notStarted:
+            return .notStarted
+        case .inProgress:
+            return .inProgress
+        case .submitted:
+            return .completed
+        }
     }
 }
 
