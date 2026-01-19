@@ -85,6 +85,17 @@ public struct SettingsView: View {
                 }
             }
 
+            Section("Planning") {
+                NavigationLink("Templates") {
+                    TemplateLibraryView()
+                }
+            }
+
+            Section("AI Integrations") {
+                Toggle("Optional AI integrations (off)", isOn: .constant(false))
+                    .disabled(true)
+            }
+
             Section("Add Profile") {
                 TextField("New profile name", text: $newProfileName)
                 Button("Create Profile") {
