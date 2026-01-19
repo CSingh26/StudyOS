@@ -174,14 +174,18 @@ public final class CanvasSyncEngine {
 
     private func upsertGrade(dto: CanvasGradeDTO, course: Course) {
         let grade = fetchGrade(canvasId: dto.id) ?? Grade(
+            title: "Canvas Grade",
             score: dto.score,
             weight: 1,
             recordedAt: Date(),
             canvasId: dto.id,
+            isManual: false,
             course: course
         )
 
+        grade.title = "Canvas Grade"
         grade.score = dto.score
+        grade.isManual = false
         grade.course = course
         if fetchGrade(canvasId: dto.id) == nil {
             context.insert(grade)

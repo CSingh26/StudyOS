@@ -110,6 +110,8 @@ public final class Course {
     public var code: String
     public var colorHex: String
     public var canvasId: Int?
+    public var manualGradesEnabled: Bool
+    public var targetGrade: Double
     public var createdAt: Date
     public var profile: Profile?
 
@@ -140,6 +142,8 @@ public final class Course {
         code: String,
         colorHex: String,
         canvasId: Int? = nil,
+        manualGradesEnabled: Bool = false,
+        targetGrade: Double = 90,
         createdAt: Date = Date(),
         profile: Profile? = nil
     ) {
@@ -148,6 +152,8 @@ public final class Course {
         self.code = code
         self.colorHex = colorHex
         self.canvasId = canvasId
+        self.manualGradesEnabled = manualGradesEnabled
+        self.targetGrade = targetGrade
         self.createdAt = createdAt
         self.profile = profile
         self.assignments = []
@@ -284,25 +290,31 @@ public final class Announcement {
 @Model
 public final class Grade {
     @Attribute(.unique) public var id: UUID
+    public var title: String
     public var score: Double
     public var weight: Double
     public var recordedAt: Date
     public var canvasId: Int?
+    public var isManual: Bool
     public var course: Course?
 
     public init(
         id: UUID = UUID(),
+        title: String,
         score: Double,
         weight: Double,
         recordedAt: Date = Date(),
         canvasId: Int? = nil,
+        isManual: Bool = false,
         course: Course? = nil
     ) {
         self.id = id
+        self.title = title
         self.score = score
         self.weight = weight
         self.recordedAt = recordedAt
         self.canvasId = canvasId
+        self.isManual = isManual
         self.course = course
     }
 }

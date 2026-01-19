@@ -24,7 +24,7 @@ struct AppShellView: View {
                     navigationTab(title: "Assignments", systemImage: "checklist", view: AssignmentsHubView())
                     navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarView())
                     navigationTab(title: "Vault", systemImage: "tray.full", view: VaultView())
-                    navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesPlaceholderView())
+                    navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesView())
                     navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsView())
                 }
             }
