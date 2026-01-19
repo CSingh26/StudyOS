@@ -113,6 +113,7 @@ let project = Project(
             resources: [],
             entitlements: .file(path: "Resources/Entitlements/SaveToStudyOS.entitlements"),
             dependencies: [
+                .package(product: "Core"),
                 .package(product: "Storage"),
                 .package(product: "UIComponents")
             ]
