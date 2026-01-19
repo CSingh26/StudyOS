@@ -9,6 +9,7 @@ import FeaturesToday
 import FeaturesVault
 
 struct AppShellView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var showSearch = false
     @StateObject private var networkMonitor = NetworkMonitor()
 
@@ -31,6 +32,9 @@ struct AppShellView: View {
         }
         .sheet(isPresented: $showSearch) {
             SearchView()
+        }
+        .task {
+            WidgetSnapshotWriter.update(context: modelContext)
         }
     }
 

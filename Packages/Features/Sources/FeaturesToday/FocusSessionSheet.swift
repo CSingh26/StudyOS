@@ -1,4 +1,7 @@
+import ActivityKit
+import Core
 import Storage
+import SwiftData
 import SwiftUI
 import UIComponents
 
@@ -12,10 +15,13 @@ struct FocusSessionSheet: View {
     let onComplete: (Int) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \CalendarEvent.startDate) private var calendarEvents: [CalendarEvent]
+
     @State private var mode: Mode = .pomodoro
     @State private var customMinutes: Int = 45
     @State private var remainingSeconds: Int = 25 * 60
     @State private var isRunning = false
+    @State private var activity: Activity<FocusSessionAttributes>?
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -48,6 +54,9 @@ struct FocusSessionSheet: View {
                 Button(isRunning ? "Pause" : "Start") {
                     isRunning.toggle()
                     Haptics.impact(style: .medium)
+                    if isRunning {
+                        startActivity()
+                    }
                 }
                 .buttonStyle(.borderedProminent)
 
@@ -62,6 +71,7 @@ struct FocusSessionSheet: View {
             guard isRunning else { return }
             if remainingSeconds > 0 {
                 remainingSeconds -= 1
+                updateActivity()
             } else {
                 finish()
             }
@@ -74,6 +84,10 @@ struct FocusSessionSheet: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
+    private var nextEventDate: Date? {
+        calendarEvents.first { $0.startDate > Date() }?.startDate
+    }
+
     private func resetTimer() {
         let minutes = mode == .pomodoro ? 25 : customMinutes
         remainingSeconds = minutes * 60
@@ -84,6 +98,37 @@ struct FocusSessionSheet: View {
         let minutes = mode == .pomodoro ? 25 : customMinutes
         onComplete(minutes)
         Haptics.notification(.success)
+        endActivity()
         dismiss()
+    }
+
+    private func startActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let minutes = remainingSeconds / 60
+        let nextMinutes = nextEventDate.map { max(0, Int($0.timeIntervalSince(Date()) / 60)) }
+        let attributes = FocusSessionAttributes(taskName: assignment.title)
+        let content = FocusSessionAttributes.ContentState(title: assignment.title, remainingMinutes: minutes, nextEventMinutes: nextMinutes)
+        do {
+            activity = try Activity.request(attributes: attributes, contentState: content, pushType: nil)
+        } catch {
+            return
+        }
+    }
+
+    private func updateActivity() {
+        guard let activity else { return }
+        let minutes = max(0, remainingSeconds / 60)
+        let nextMinutes = nextEventDate.map { max(0, Int($0.timeIntervalSince(Date()) / 60)) }
+        let content = FocusSessionAttributes.ContentState(title: assignment.title, remainingMinutes: minutes, nextEventMinutes: nextMinutes)
+        Task {
+            await activity.update(using: content)
+        }
+    }
+
+    private func endActivity() {
+        guard let activity else { return }
+        Task {
+            await activity.end(dismissalPolicy: .immediate)
+        }
     }
 }

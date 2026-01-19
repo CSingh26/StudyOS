@@ -1,15 +1,7 @@
 import ActivityKit
+import Core
 import SwiftUI
 import WidgetKit
-
-struct FocusSessionAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        var title: String
-        var remainingMinutes: Int
-    }
-
-    var taskName: String
-}
 
 struct FocusSessionLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
@@ -19,6 +11,11 @@ struct FocusSessionLiveActivityWidget: Widget {
                     .font(.headline)
                 Text("\(context.state.remainingMinutes) min left")
                     .font(.caption)
+                if let next = context.state.nextEventMinutes {
+                    Text("Next event in \(next)m")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
             .padding()
         } dynamicIsland: { context in
@@ -28,6 +25,11 @@ struct FocusSessionLiveActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Text("\(context.state.remainingMinutes)m")
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    if let next = context.state.nextEventMinutes {
+                        Text("Next event in \(next)m")
+                    }
                 }
             } compactLeading: {
                 Text("\(context.state.remainingMinutes)m")
