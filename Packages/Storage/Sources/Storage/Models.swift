@@ -51,6 +51,8 @@ public final class Profile {
     public var canvasLimitedMode: Bool
     public var icalFeedURL: String?
     public var lastIcalSyncAt: Date?
+    public var lastCanvasSyncAt: Date?
+    public var lastCanvasSyncError: String?
 
     @Relationship(deleteRule: .cascade, inverse: \Course.profile)
     public var courses: [Course]
@@ -76,7 +78,9 @@ public final class Profile {
         canvasScopes: String? = nil,
         canvasLimitedMode: Bool = false,
         icalFeedURL: String? = nil,
-        lastIcalSyncAt: Date? = nil
+        lastIcalSyncAt: Date? = nil,
+        lastCanvasSyncAt: Date? = nil,
+        lastCanvasSyncError: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -90,6 +94,8 @@ public final class Profile {
         self.canvasLimitedMode = canvasLimitedMode
         self.icalFeedURL = icalFeedURL
         self.lastIcalSyncAt = lastIcalSyncAt
+        self.lastCanvasSyncAt = lastCanvasSyncAt
+        self.lastCanvasSyncError = lastCanvasSyncError
         self.courses = []
         self.availabilityBlocks = []
         self.groupProjects = []
@@ -103,6 +109,7 @@ public final class Course {
     public var name: String
     public var code: String
     public var colorHex: String
+    public var canvasId: Int?
     public var createdAt: Date
     public var profile: Profile?
 
@@ -132,6 +139,7 @@ public final class Course {
         name: String,
         code: String,
         colorHex: String,
+        canvasId: Int? = nil,
         createdAt: Date = Date(),
         profile: Profile? = nil
     ) {
@@ -139,6 +147,7 @@ public final class Course {
         self.name = name
         self.code = code
         self.colorHex = colorHex
+        self.canvasId = canvasId
         self.createdAt = createdAt
         self.profile = profile
         self.assignments = []
@@ -160,6 +169,9 @@ public final class Assignment {
     public var estimatedMinutes: Int
     public var weight: Double
     public var status: AssignmentStatus
+    public var canvasId: Int?
+    public var submissionType: String
+    public var externalURL: String?
     public var createdAt: Date
     public var updatedAt: Date
     public var course: Course?
@@ -184,6 +196,9 @@ public final class Assignment {
         estimatedMinutes: Int = 60,
         weight: Double = 0,
         status: AssignmentStatus = .notStarted,
+        canvasId: Int? = nil,
+        submissionType: String = "",
+        externalURL: String? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         course: Course? = nil
@@ -195,6 +210,9 @@ public final class Assignment {
         self.estimatedMinutes = estimatedMinutes
         self.weight = weight
         self.status = status
+        self.canvasId = canvasId
+        self.submissionType = submissionType
+        self.externalURL = externalURL
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.course = course
@@ -211,6 +229,8 @@ public final class Quiz {
     public var title: String
     @Attribute(.indexed) public var dueDate: Date?
     public var totalPoints: Double
+    public var canvasId: Int?
+    public var externalURL: String?
     public var course: Course?
 
     public init(
@@ -218,12 +238,16 @@ public final class Quiz {
         title: String,
         dueDate: Date? = nil,
         totalPoints: Double = 0,
+        canvasId: Int? = nil,
+        externalURL: String? = nil,
         course: Course? = nil
     ) {
         self.id = id
         self.title = title
         self.dueDate = dueDate
         self.totalPoints = totalPoints
+        self.canvasId = canvasId
+        self.externalURL = externalURL
         self.course = course
     }
 }
@@ -234,6 +258,8 @@ public final class Announcement {
     public var title: String
     public var message: String
     public var postedAt: Date
+    public var canvasId: Int?
+    public var externalURL: String?
     public var course: Course?
 
     public init(
@@ -241,12 +267,16 @@ public final class Announcement {
         title: String,
         message: String,
         postedAt: Date = Date(),
+        canvasId: Int? = nil,
+        externalURL: String? = nil,
         course: Course? = nil
     ) {
         self.id = id
         self.title = title
         self.message = message
         self.postedAt = postedAt
+        self.canvasId = canvasId
+        self.externalURL = externalURL
         self.course = course
     }
 }
@@ -257,6 +287,7 @@ public final class Grade {
     public var score: Double
     public var weight: Double
     public var recordedAt: Date
+    public var canvasId: Int?
     public var course: Course?
 
     public init(
@@ -264,12 +295,14 @@ public final class Grade {
         score: Double,
         weight: Double,
         recordedAt: Date = Date(),
+        canvasId: Int? = nil,
         course: Course? = nil
     ) {
         self.id = id
         self.score = score
         self.weight = weight
         self.recordedAt = recordedAt
+        self.canvasId = canvasId
         self.course = course
     }
 }
@@ -284,6 +317,7 @@ public final class CalendarEvent {
     public var notes: String
     public var source: CalendarEventSource
     public var externalId: String?
+    public var canvasId: Int?
     public var course: Course?
 
     public init(
@@ -295,6 +329,7 @@ public final class CalendarEvent {
         notes: String = "",
         source: CalendarEventSource = .manual,
         externalId: String? = nil,
+        canvasId: Int? = nil,
         course: Course? = nil
     ) {
         self.id = id
@@ -305,6 +340,7 @@ public final class CalendarEvent {
         self.notes = notes
         self.source = source
         self.externalId = externalId
+        self.canvasId = canvasId
         self.course = course
     }
 }

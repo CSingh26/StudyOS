@@ -79,6 +79,12 @@ public struct SettingsView: View {
                 }
             }
 
+            Section("Sync") {
+                NavigationLink("Sync Health") {
+                    SyncHealthView()
+                }
+            }
+
             Section("Add Profile") {
                 TextField("New profile name", text: $newProfileName)
                 Button("Create Profile") {

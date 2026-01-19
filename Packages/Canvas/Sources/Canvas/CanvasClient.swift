@@ -6,6 +6,8 @@ public protocol CanvasClient: Sendable {
     func fetchQuizzes(courseId: Int) async throws -> [CanvasQuizDTO]
     func fetchAnnouncements(courseId: Int) async throws -> [CanvasAnnouncementDTO]
     func fetchGrades(courseId: Int) async throws -> [CanvasGradeDTO]
+    func fetchModules(courseId: Int) async throws -> [CanvasModuleDTO]
+    func fetchCalendarEvents() async throws -> [CanvasCalendarEventDTO]
 }
 
 public enum CanvasError: LocalizedError {

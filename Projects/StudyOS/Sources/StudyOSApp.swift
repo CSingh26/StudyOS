@@ -6,6 +6,7 @@ import SwiftUI
 
 @main
 struct StudyOSApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var profileSession = ProfileSession(appGroupId: AppConstants.appGroupId)
     private let container: ModelContainer
 
@@ -16,6 +17,7 @@ struct StudyOSApp: App {
             useCloudKit: false
         )
         container = try! StorageController.makeContainer(models: StorageModels.all, configuration: configuration)
+        BackgroundSyncManager.shared.configure(container: container)
     }
 
     var body: some Scene {
