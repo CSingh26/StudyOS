@@ -1,0 +1,33 @@
+# Xcode
+.DS_Store
+DerivedData/
+*.xcuserstate
+*.xcuserdata/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+*.xcbkptlist
+*.xcworkspacedata
+*.xcodeproj/project.xcworkspace/
+
+# SwiftPM
+.build/
+Package.resolved
+
+# Tuist
+/.tuist/
+Tuist/Dependencies/
+
+# Environment
+.env
+
+# Artifacts
+*.log
+*.tmp
+
+# Playground
+*.playground
+
+# IDEs
+.idea/
+.vscode/
