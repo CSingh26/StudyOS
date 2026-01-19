@@ -23,7 +23,7 @@ struct AppShellView: View {
                     navigationTab(title: "Today", systemImage: "sun.max", view: TodayView())
                     navigationTab(title: "Assignments", systemImage: "checklist", view: AssignmentsHubView())
                     navigationTab(title: "Calendar", systemImage: "calendar", view: CalendarView())
-                    navigationTab(title: "Vault", systemImage: "tray.full", view: VaultPlaceholderView())
+                    navigationTab(title: "Vault", systemImage: "tray.full", view: VaultView())
                     navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesPlaceholderView())
                     navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsView())
                 }
