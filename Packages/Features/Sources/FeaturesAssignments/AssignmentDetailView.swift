@@ -67,7 +67,8 @@ public struct AssignmentDetailView: View {
                             StudyText("Submission: \(assignment.submissionType)", style: .caption, color: StudyColor.secondaryText)
                         }
                         if assignment.weight > 0 {
-                            StudyText("Weight: \(assignment.weight, format: .number) pts", style: .caption, color: StudyColor.secondaryText)
+                            let roundedWeight = Int(assignment.weight.rounded())
+                            StudyText("Weight: \(roundedWeight) pts", style: .caption, color: StudyColor.secondaryText)
                         }
                     }
                 }

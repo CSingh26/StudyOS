@@ -127,7 +127,7 @@ struct CourseVaultDetailView: View {
             if access { url.stopAccessingSecurityScopedResource() }
         }
         do {
-            let bookmark = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+            let bookmark = try url.bookmarkData(options: .minimalBookmark, includingResourceValuesForKeys: nil, relativeTo: nil)
             let fileType = resolveType(url: url)
             let assignment = courseAssignments.first { $0.id == selectedAssignmentId }
             let reference = FileReference(
@@ -183,7 +183,7 @@ struct CourseVaultDetailView: View {
             return
         }
         var isStale = false
-        if let url = try? URL(resolvingBookmarkData: file.bookmarkData, options: [.withSecurityScope], bookmarkDataIsStale: &isStale) {
+        if let url = try? URL(resolvingBookmarkData: file.bookmarkData, options: [], bookmarkDataIsStale: &isStale) {
             if url.startAccessingSecurityScopedResource() {
                 openURL(url)
                 url.stopAccessingSecurityScopedResource()

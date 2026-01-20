@@ -9,7 +9,7 @@ public struct AssignmentsHubView: View {
     @Query(sort: \Assignment.dueDate) private var assignments: [Assignment]
     @Query(sort: \Course.name) private var courses: [Course]
     @Query(sort: \CalendarEvent.startDate) private var calendarEvents: [CalendarEvent]
-    @Query(sort: \StudyBlock.startDate) private var studyBlocks: [StudyBlock]
+    @Query(sort: \Storage.StudyBlock.startDate) private var studyBlocks: [Storage.StudyBlock]
 
     @State private var selectedFilter: AssignmentFilter = .dueSoon
     @State private var selectedSort: AssignmentSort = .priority

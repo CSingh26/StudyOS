@@ -10,9 +10,9 @@ public struct WorkloadHeatmapDay: Identifiable {
 
 public struct WorkloadHeatmapView: View {
     private let days: [WorkloadHeatmapDay]
-    private let calendar = Calendar.current
 
     public init(blocks: [StudyBlock], deadlines: [Date], weekOf: Date = Date()) {
+        let calendar = Calendar.current
         let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: weekOf)?.start ?? weekOf
         var result: [WorkloadHeatmapDay] = []
         for offset in 0..<7 {

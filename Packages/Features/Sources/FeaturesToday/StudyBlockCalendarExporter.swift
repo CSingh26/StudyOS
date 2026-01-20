@@ -2,7 +2,7 @@ import EventKit
 import Storage
 
 enum StudyBlockCalendarExporter {
-    static func export(blocks: [StudyBlock]) async {
+    static func export(blocks: [Storage.StudyBlock]) async {
         let store = EKEventStore()
         let granted = await requestAccess(store: store)
         guard granted else { return }
@@ -39,7 +39,7 @@ enum StudyBlockCalendarExporter {
         return calendar
     }
 
-    private static func removeExistingEvents(in blocks: [StudyBlock], store: EKEventStore, calendar: EKCalendar) {
+    private static func removeExistingEvents(in blocks: [Storage.StudyBlock], store: EKEventStore, calendar: EKCalendar) {
         guard let earliest = blocks.map(\.startDate).min(),
               let latest = blocks.map(\.endDate).max() else { return }
         let predicate = store.predicateForEvents(withStart: earliest, end: latest, calendars: [calendar])

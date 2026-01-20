@@ -4,7 +4,7 @@ import Storage
 import UserNotifications
 
 @MainActor
-public final class LeaveNowAlertService: NSObject, CLLocationManagerDelegate {
+public final class LeaveNowAlertService: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let manager = CLLocationManager()
     private var locationContinuation: CheckedContinuation<CLLocation, Error>?
 
@@ -46,7 +46,7 @@ public final class LeaveNowAlertService: NSObject, CLLocationManagerDelegate {
                 let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)
                 let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
                 let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-                center.add(request)
+                try? await center.add(request)
             } catch {
                 continue
             }
@@ -69,7 +69,7 @@ public final class LeaveNowAlertService: NSObject, CLLocationManagerDelegate {
             let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-            center.add(request)
+            center.add(request, withCompletionHandler: nil)
         }
     }
 

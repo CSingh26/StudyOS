@@ -1,3 +1,4 @@
+import Foundation
 import Storage
 import SwiftData
 import SwiftUI
@@ -20,7 +21,7 @@ struct CourseGradesView: View {
                 Text(currentGradeText)
                     .font(StudyTypography.headline)
                 if let required = requiredScoreForTarget {
-                    Text("Need \(required, format: .number.precision(.fractionLength(1)))% on remaining work to reach \(course.targetGrade, format: .number.precision(.fractionLength(0)))%")
+                    Text("Need \(formattedPercent(required, digits: 1))% on remaining work to reach \(formattedPercent(course.targetGrade, digits: 0))%")
                         .font(StudyTypography.caption)
                         .foregroundColor(StudyColor.secondaryText)
                 }
@@ -33,17 +34,17 @@ struct CourseGradesView: View {
                     HStack {
                         Text(grade.title)
                         Spacer()
-                        Text("\(grade.score, format: .number.precision(.fractionLength(1)))%")
+                        Text("\(formattedPercent(grade.score, digits: 1))%")
                             .foregroundColor(StudyColor.secondaryText)
-                        Text("(\(grade.weight, format: .number.precision(.fractionLength(0)))%)")
+                        Text("(\(formattedPercent(grade.weight, digits: 0))%)")
                             .foregroundColor(StudyColor.secondaryText)
                     }
                 }
                 HStack {
                     TextField("Title", text: $manualTitle)
-                    TextField("Score", value: $manualScore, format: .number)
+                    TextField("Score", value: $manualScore, formatter: Self.oneDecimalFormatter)
                         .keyboardType(.decimalPad)
-                    TextField("Weight", value: $manualWeight, format: .number)
+                    TextField("Weight", value: $manualWeight, formatter: Self.wholeNumberFormatter)
                         .keyboardType(.decimalPad)
                 }
                 Button("Add Grade") {
@@ -57,7 +58,7 @@ struct CourseGradesView: View {
                         Text(assignment.title)
                             .font(StudyTypography.body)
                         Spacer()
-                        Text("Weight \(assignment.weight, format: .number.precision(.fractionLength(0)))")
+                        Text("Weight \(formattedPercent(assignment.weight, digits: 0))")
                             .font(StudyTypography.caption)
                             .foregroundColor(StudyColor.secondaryText)
                     }
@@ -77,7 +78,7 @@ struct CourseGradesView: View {
                 if !suggestions.isEmpty {
                     ForEach(suggestions) { suggestion in
                         HStack {
-                            Text("\(suggestion.title) \(suggestion.weight, format: .number.precision(.fractionLength(0)))%")
+                            Text("\(suggestion.title) \(formattedPercent(suggestion.weight, digits: 0))%")
                             Spacer()
                             Button("Add") {
                                 addSuggestion(suggestion)
@@ -104,11 +105,11 @@ struct CourseGradesView: View {
     private var currentGradeText: String {
         if course.manualGradesEnabled || course.grades.filter({ !$0.isManual }).isEmpty {
             let score = weightedAverage(manualGrades)
-            return "Manual grade: \(score, format: .number.precision(.fractionLength(1)))%"
+            return "Manual grade: \(formattedPercent(score, digits: 1))%"
         }
         let canvasScores = course.grades.filter { !$0.isManual }.map { $0.score }
         let avg = canvasScores.isEmpty ? 0 : canvasScores.reduce(0, +) / Double(canvasScores.count)
-        return "Canvas grade: \(avg, format: .number.precision(.fractionLength(1)))%"
+        return "Canvas grade: \(formattedPercent(avg, digits: 1))%"
     }
 
     private var requiredScoreForTarget: Double? {
@@ -153,7 +154,7 @@ struct CourseGradesView: View {
     }
 
     private func extractSuggestions(from text: String) -> [SyllabusSuggestion] {
-        let pattern = "([A-Za-z][A-Za-z \-]+)\\s*(\\d{1,2})%"
+        let pattern = "([A-Za-z][A-Za-z -]+)\\s*(\\d{1,2})%"
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return [] }
         let range = NSRange(text.startIndex..., in: text)
         let matches = regex.matches(in: text, range: range)
@@ -179,6 +180,29 @@ struct CourseGradesView: View {
         modelContext.insert(grade)
         try? modelContext.save()
     }
+
+    private func formattedPercent(_ value: Double, digits: Int) -> String {
+        let formatter = digits == 0 ? Self.wholeNumberFormatter : Self.oneDecimalFormatter
+        return formatter.string(from: NSNumber(value: value)) ?? String(format: "%.\(digits)f", value)
+    }
+}
+
+extension CourseGradesView {
+    private static let oneDecimalFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 1
+        formatter.minimumFractionDigits = 1
+        return formatter
+    }()
+
+    private static let wholeNumberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        return formatter
+    }()
 }
 
 struct SyllabusSuggestion: Identifiable {

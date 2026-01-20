@@ -9,7 +9,7 @@ import UIComponents
 public struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Assignment.dueDate) private var assignments: [Assignment]
-    @Query(sort: \StudyBlock.startDate) private var studyBlocks: [StudyBlock]
+    @Query(sort: \Storage.StudyBlock.startDate) private var studyBlocks: [Storage.StudyBlock]
     @Query(sort: \FocusSession.startedAt) private var focusSessions: [FocusSession]
     @Query(sort: \Course.name) private var courses: [Course]
     @Query(sort: \CalendarEvent.startDate) private var calendarEvents: [CalendarEvent]
@@ -132,7 +132,7 @@ public struct TodayView: View {
                 StudyCard {
                     VStack(alignment: .leading, spacing: 12) {
                         StudyText("Workload", style: .headline)
-                        WorkloadHeatmapView(blocks: studyBlocks, deadlines: assignments.compactMap { $0.dueDate })
+                        WorkloadHeatmapView(blocks: plannerBlocks, deadlines: assignments.compactMap { $0.dueDate })
                     }
                 }
 
@@ -228,6 +228,16 @@ public struct TodayView: View {
         return calendarEvents.first { $0.startDate > now }
     }
 
+    private var plannerBlocks: [Planner.StudyBlock] {
+        studyBlocks.map { block in
+            Planner.StudyBlock(
+                taskId: block.assignment?.id ?? UUID(),
+                start: block.startDate,
+                end: block.endDate
+            )
+        }
+    }
+
     private func startFocus(for assignment: Assignment) {
         selectedAssignment = assignment
         Haptics.impact(style: .medium)
@@ -236,7 +246,7 @@ public struct TodayView: View {
         }
     }
 
-    private func snooze(_ block: StudyBlock) {
+    private func snooze(_ block: Storage.StudyBlock) {
         let newStart = block.startDate.addingTimeInterval(15 * 60)
         let duration = block.endDate.timeIntervalSince(block.startDate)
         block.startDate = newStart
@@ -372,10 +382,10 @@ public struct TodayView: View {
                 ? planner.recover(missedBlocks: plannerMissed, tasks: tasks, constraints: constraints)
                 : planner.plan(tasks: tasks, constraints: constraints))
             let assignmentMap = Dictionary(uniqueKeysWithValues: activeAssignments.map { ($0.id, $0) })
-            var createdBlocks: [StudyBlock] = []
+            var createdBlocks: [Storage.StudyBlock] = []
             for block in planned {
                 guard let assignment = assignmentMap[block.taskId] else { continue }
-                let studyBlock = StudyBlock(
+                let studyBlock = Storage.StudyBlock(
                     startDate: block.start,
                     endDate: block.end,
                     status: .planned,

@@ -33,12 +33,26 @@ public enum StorageController {
         models: [any PersistentModel.Type],
         configuration: StorageConfiguration
     ) throws -> ModelContainer {
-        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: configuration.appGroupId)
+        let schema = Schema(models)
+        let cloudKitDatabase: ModelConfiguration.CloudKitDatabase
+        if configuration.useCloudKit, let containerId = configuration.cloudKitContainerId {
+            cloudKitDatabase = .private(containerId)
+        } else if configuration.useCloudKit {
+            cloudKitDatabase = .automatic
+        } else {
+            cloudKitDatabase = .none
+        }
+
         let modelConfiguration = ModelConfiguration(
-            url: groupURL?.appendingPathComponent("StudyOS.sqlite"),
-            cloudKitDatabase: configuration.useCloudKit ? .private : .none
+            "StudyOS",
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            allowsSave: true,
+            groupContainer: .identifier(configuration.appGroupId),
+            cloudKitDatabase: cloudKitDatabase
         )
-        return try ModelContainer(for: models, configurations: modelConfiguration)
+
+        return try ModelContainer(for: schema, configurations: [modelConfiguration])
     }
 
     public static func deleteStore(appGroupId: String) {

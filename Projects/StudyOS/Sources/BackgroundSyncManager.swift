@@ -67,7 +67,10 @@ final class BackgroundSyncManager {
             return false
         }
         guard profile.canvasLimitedMode == false else { return true }
-        guard let engine = CanvasSyncEngine(context: context, profile: profile) else {
+        let engine = await MainActor.run {
+            CanvasSyncEngine(context: context, profile: profile)
+        }
+        guard let engine else {
             return false
         }
         do {

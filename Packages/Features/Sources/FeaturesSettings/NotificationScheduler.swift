@@ -27,7 +27,7 @@ public enum NotificationScheduler {
         guard granted else { return }
 
         let assignments = (try? context.fetch(FetchDescriptor<Assignment>())) ?? []
-        let studyBlocks = (try? context.fetch(FetchDescriptor<StudyBlock>())) ?? []
+        let studyBlocks = (try? context.fetch(FetchDescriptor<Storage.StudyBlock>())) ?? []
         let events = (try? context.fetch(FetchDescriptor<CalendarEvent>())) ?? []
 
         var identifiers: [String] = []
@@ -45,7 +45,11 @@ public enum NotificationScheduler {
         center.removePendingNotificationRequests(withIdentifiers: identifiers)
         for identifier in identifiers {
             if let request = pendingRequests[identifier] {
-                center.add(request)
+                do {
+                    try await center.add(request)
+                } catch {
+                    StudyLogger.ui.error("Failed to schedule notification \(identifier): \(error.localizedDescription)")
+                }
             }
         }
         pendingRequests.removeAll()
@@ -122,7 +126,7 @@ public enum NotificationScheduler {
         }
     }
 
-    private static func scheduleStudyBlocks(_ blocks: [StudyBlock], center: UNUserNotificationCenter) -> [String] {
+    private static func scheduleStudyBlocks(_ blocks: [Storage.StudyBlock], center: UNUserNotificationCenter) -> [String] {
         var identifiers: [String] = []
         let now = Date()
 

@@ -170,7 +170,7 @@ public final class Course {
 public final class Assignment {
     @Attribute(.unique) public var id: UUID
     public var title: String
-    @Attribute(.indexed) public var dueDate: Date?
+    public var dueDate: Date?
     public var details: String
     public var estimatedMinutes: Int
     public var weight: Double
@@ -233,7 +233,7 @@ public final class Assignment {
 public final class Quiz {
     @Attribute(.unique) public var id: UUID
     public var title: String
-    @Attribute(.indexed) public var dueDate: Date?
+    public var dueDate: Date?
     public var totalPoints: Double
     public var canvasId: Int?
     public var externalURL: String?
@@ -323,7 +323,7 @@ public final class Grade {
 public final class CalendarEvent {
     @Attribute(.unique) public var id: UUID
     public var title: String
-    @Attribute(.indexed) public var startDate: Date
+    public var startDate: Date
     public var endDate: Date
     public var location: String
     public var notes: String
@@ -360,7 +360,7 @@ public final class CalendarEvent {
 @Model
 public final class StudyBlock {
     @Attribute(.unique) public var id: UUID
-    @Attribute(.indexed) public var startDate: Date
+    public var startDate: Date
     public var endDate: Date
     public var status: StudyBlockStatus
     public var assignment: Assignment?
@@ -386,7 +386,7 @@ public final class StudyBlock {
 @Model
 public final class FocusSession {
     @Attribute(.unique) public var id: UUID
-    @Attribute(.indexed) public var startedAt: Date
+    public var startedAt: Date
     public var durationMinutes: Int
     public var notes: String
     public var assignment: Assignment?

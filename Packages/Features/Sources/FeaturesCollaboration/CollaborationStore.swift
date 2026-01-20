@@ -54,7 +54,7 @@ final class CloudKitCollaborationStore: CollaborationStore {
         let share = CKShare(rootRecord: projectRecord)
         share[CKShare.SystemFieldKey.title] = project.title as CKRecordValue
 
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let operation = CKModifyRecordsOperation(recordsToSave: [projectRecord, share], recordIDsToDelete: nil)
             operation.modifyRecordsCompletionBlock = { _, _, error in
                 if let error {

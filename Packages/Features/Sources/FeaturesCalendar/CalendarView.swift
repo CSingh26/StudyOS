@@ -84,7 +84,7 @@ public struct CalendarView: View {
             }
         }
         .padding(16)
-        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.calendar, .data]) { result in
+        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: allowedTypes) { result in
             switch result {
             case .success(let url):
                 importFile(from: url)
@@ -108,6 +108,11 @@ public struct CalendarView: View {
     private var activeProfile: Profile? {
         guard let activeId = profileSession.activeProfileId else { return profiles.first }
         return profiles.first { $0.id == activeId }
+    }
+
+    private var allowedTypes: [UTType] {
+        let icsType = UTType(filenameExtension: "ics") ?? .data
+        return [icsType, .data]
     }
 
     private func importFile(from url: URL) {

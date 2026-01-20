@@ -18,7 +18,9 @@ public struct OnboardingView: View {
             StudyColor.background.ignoresSafeArea()
             VStack(spacing: 24) {
                 stepHeader
-                content
+                ScrollView {
+                    content
+                }
                 navigationControls
             }
             .padding(.horizontal, 20)

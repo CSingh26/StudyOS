@@ -1,7 +1,7 @@
 import ProjectDescription
 
-let deploymentTarget = DeploymentTarget.iOS(targetVersion: "17.0", devices: [.iphone])
-let appGroupId = "group.com.studyos.app"
+let destinations: Destinations = .iOS
+let deploymentTargets = DeploymentTargets.iOS("17.0")
 
 let project = Project(
     name: "StudyOS",
@@ -14,12 +14,12 @@ let project = Project(
         .package(path: "../../Packages/Features")
     ],
     targets: [
-        Target(
+        .target(
             name: "StudyOS",
-            platform: .iOS,
+            destinations: destinations,
             product: .app,
             bundleId: "com.studyos.app",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .extendingDefault(with: [
                 "CFBundleDisplayName": .string("StudyOS"),
                 "UIBackgroundModes": .array([.string("fetch"), .string("processing")]),
@@ -57,16 +57,15 @@ let project = Project(
                 .target(name: "SaveToStudyOS")
             ]
         ),
-        Target(
+        .target(
             name: "StudyOSWidgets",
-            platform: .iOS,
+            destinations: destinations,
             product: .appExtension,
             bundleId: "com.studyos.app.widgets",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .extendingDefault(with: [
                 "NSExtension": .dictionary([
-                    "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension"),
-                    "NSExtensionPrincipalClass": .string("WidgetKit.WidgetExtension")
+                    "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
                 ])
             ]),
             sources: ["Widgets/**"],
@@ -77,16 +76,15 @@ let project = Project(
                 .package(product: "Storage")
             ]
         ),
-        Target(
+        .target(
             name: "StudyOSLiveActivities",
-            platform: .iOS,
+            destinations: destinations,
             product: .appExtension,
             bundleId: "com.studyos.app.liveactivities",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .extendingDefault(with: [
                 "NSExtension": .dictionary([
-                    "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension"),
-                    "NSExtensionPrincipalClass": .string("WidgetKit.WidgetExtension")
+                    "NSExtensionPointIdentifier": .string("com.apple.widgetkit-extension")
                 ])
             ]),
             sources: ["LiveActivities/**"],
@@ -97,13 +95,14 @@ let project = Project(
                 .package(product: "Storage")
             ]
         ),
-        Target(
+        .target(
             name: "SaveToStudyOS",
-            platform: .iOS,
+            destinations: destinations,
             product: .appExtension,
             bundleId: "com.studyos.app.share",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .extendingDefault(with: [
+                "CFBundleDisplayName": .string("Save to StudyOS"),
                 "NSExtension": .dictionary([
                     "NSExtensionPointIdentifier": .string("com.apple.share-services"),
                     "NSExtensionPrincipalClass": .string("ShareViewController")
@@ -118,12 +117,12 @@ let project = Project(
                 .package(product: "UIComponents")
             ]
         ),
-        Target(
+        .target(
             name: "StudyOSTests",
-            platform: .iOS,
+            destinations: destinations,
             product: .unitTests,
             bundleId: "com.studyos.appTests",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .default,
             sources: ["Tests/**"],
             resources: [],
@@ -134,12 +133,12 @@ let project = Project(
                 .package(product: "Canvas")
             ]
         ),
-        Target(
+        .target(
             name: "StudyOSUITests",
-            platform: .iOS,
+            destinations: destinations,
             product: .uiTests,
             bundleId: "com.studyos.appUITests",
-            deploymentTarget: deploymentTarget,
+            deploymentTargets: deploymentTargets,
             infoPlist: .default,
             sources: ["UITests/**"],
             resources: [],
