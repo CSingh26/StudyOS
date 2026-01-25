@@ -10,8 +10,10 @@ struct RootView: View {
     @EnvironmentObject private var profileSession: ProfileSession
     @Query(sort: \Profile.createdAt) private var profiles: [Profile]
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) private var systemColorScheme
     @StateObject private var appLockManager = AppLockManager()
     @AppStorage(AppConstants.appLockEnabledKey) private var appLockEnabled: Bool = false
+    @AppStorage(ThemeMode.storageKey) private var themeModeRaw: String = ThemeMode.system.rawValue
 
     var body: some View {
         ZStack {
@@ -29,6 +31,8 @@ struct RootView: View {
                 }
             }
         }
+        .environment(\.studyTheme, StudyTheme.resolved(for: themeMode, systemScheme: effectiveColorScheme))
+        .preferredColorScheme(themeMode.preferredColorScheme)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onChange(of: scenePhase) { phase in
             guard !needsOnboarding else { return }
@@ -55,6 +59,12 @@ struct RootView: View {
                 await appLockManager.unlockIfNeeded()
             }
         }
+        .onAppear {
+            ThemeMode.store(themeMode, in: themeDefaults)
+        }
+        .onChange(of: themeModeRaw) { _ in
+            ThemeMode.store(themeMode, in: themeDefaults)
+        }
     }
 
     private var needsOnboarding: Bool {
@@ -63,6 +73,18 @@ struct RootView: View {
 
     private var shouldShowLockOverlay: Bool {
         appLockEnabled && !needsOnboarding && appLockManager.isLocked
+    }
+
+    private var themeMode: ThemeMode {
+        ThemeMode.resolve(themeModeRaw)
+    }
+
+    private var effectiveColorScheme: ColorScheme {
+        themeMode.preferredColorScheme ?? systemColorScheme
+    }
+
+    private var themeDefaults: UserDefaults {
+        UserDefaults(suiteName: AppConstants.appGroupId) ?? .standard
     }
 }
 
