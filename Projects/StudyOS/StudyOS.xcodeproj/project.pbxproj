@@ -59,6 +59,7 @@
 		E6B232620919B2635B6BAA7B /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6262132176EEB68A1D88B2B3 /* AppLockManager.swift */; };
 		EAD187797E3A809473C3102A /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 2AC9D3A449E46B3A1306A633 /* UIComponents */; };
 		F258F3A79317EEDA69C4B81A /* UIComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 2F0AE5B44083CCF3C2A5598A /* UIComponents */; };
+		F8B7A6C5D4E3F2A1B0C9D8E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F9C1D2E3A4B5C6D7E8F90123 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -218,6 +219,7 @@
 		ECB708C013097C0E4C9E9956 /* StudyOSLiveActivities.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StudyOSLiveActivities.entitlements; sourceTree = "<group>"; };
 		EECD813CA34B2ABA41AC433C /* StudyOSWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StudyOSWidgets.entitlements; sourceTree = "<group>"; };
 		EF5815B36A81CBD3C05A305E /* Core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Core; path = ../../Packages/Core; sourceTree = "<group>"; };
+		F9C1D2E3A4B5C6D7E8F90123 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -437,6 +439,7 @@
 		E4A23BB68FD02C885CAA883E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F9C1D2E3A4B5C6D7E8F90123 /* LaunchScreen.storyboard */,
 				91CD20C0610AAB1E975A71D5 /* Entitlements */,
 			);
 			path = Resources;
@@ -692,6 +695,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8B7A6C5D4E3F2A1B0C9D8E7 /* LaunchScreen.storyboard in Resources */,
 				3071BC78FFFC60A8F84533D7 /* SaveToStudyOS.entitlements in Resources */,
 				C012516508AC88233AA0563A /* StudyOS.entitlements in Resources */,
 				09815EB6896987831FE79F66 /* StudyOSLiveActivities.entitlements in Resources */,

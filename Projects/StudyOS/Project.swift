@@ -27,6 +27,7 @@ let project = Project(
                     .string("com.studyos.refresh"),
                     .string("com.studyos.processing")
                 ]),
+                "UILaunchStoryboardName": .string("LaunchScreen"),
                 "NSSupportsLiveActivities": .boolean(true),
                 "NSCalendarsUsageDescription": .string("StudyOS uses calendar access to detect conflicts and export study blocks."),
                 "NSLocationWhenInUseUsageDescription": .string("StudyOS uses your location for optional leave-now alerts."),
