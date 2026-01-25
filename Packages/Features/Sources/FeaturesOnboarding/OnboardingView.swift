@@ -25,6 +25,7 @@ public struct OnboardingView: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .alert("Something went wrong", isPresented: Binding<Bool>(
             get: { viewModel.errorMessage != nil },

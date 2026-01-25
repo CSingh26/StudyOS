@@ -29,6 +29,7 @@ struct RootView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onChange(of: scenePhase) { phase in
             guard !needsOnboarding else { return }
             switch phase {

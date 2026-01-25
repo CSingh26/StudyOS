@@ -28,8 +28,12 @@ struct AppShellView: View {
                     navigationTab(title: "Grades", systemImage: "chart.bar", view: GradesView())
                     navigationTab(title: "Settings", systemImage: "gearshape", view: SettingsView())
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("app-shell-root")
         .sheet(isPresented: $showSearch) {
             SearchView()
         }

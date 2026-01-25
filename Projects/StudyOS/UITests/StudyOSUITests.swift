@@ -5,6 +5,12 @@ final class StudyOSUITests: XCTestCase {
         let app = launchApp(reset: true)
         completeOnboardingIfNeeded(app)
         XCTAssertTrue(app.tabBars.buttons["Today"].exists)
+        let root = app.otherElements["app-shell-root"]
+        XCTAssertTrue(root.waitForExistence(timeout: 5))
+        XCTAssertTrue(root.isHittable)
+        let window = app.windows.firstMatch
+        XCTAssertEqual(root.frame.size.width, window.frame.size.width, accuracy: 1)
+        XCTAssertEqual(root.frame.size.height, window.frame.size.height, accuracy: 1)
     }
 
     func testTodayStartFocusSession() {
